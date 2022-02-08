@@ -15,20 +15,20 @@ WIN.fill(WHITE)
 pygame.display.set_caption('TTMC')
 pygame.display.set_icon(ICON)
 
-run = True
+RUN = True
 clock = pygame.time.Clock()
 
-while run:
+while RUN:
     pygame.display.update()
 
     pressed_keys = pygame.key.get_pressed()
 
     if pressed_keys[K_ESCAPE]:
-        run = False
+        RUN = False
 
     for event in pygame.event.get():
         if event.type == QUIT:
-            run = False
+            RUN = False
 
         if event.type == MOUSEBUTTONDOWN:
             pass
