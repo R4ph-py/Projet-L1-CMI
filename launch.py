@@ -1,0 +1,23 @@
+import os, sys
+
+os.system("pip3 list >> installed.tmp")
+
+if not os.path.exists("installed.tmp"):
+    print("Fichier contenant les packages installés introuvable.")
+    sys.exit()
+
+with open("installed.tmp", 'r', encoding='utf8') as inst:
+    installed = inst.readlines()
+
+installed = ' '.join(installed)
+
+with open("requirements.txt", 'r', encoding='utf8') as req:
+    for module in req.readlines():
+        module = module.replace("\n", "").replace(" ", "")
+        if module not in installed:
+            print(f"Installation du module {module} nécessaire au fonctionnement du jeu...")
+            os.system(f"python3 -m pip install {module}")
+            print("Installation terminée !")
+
+os.remove("installed.tmp")
+os.system("python3 main.py")

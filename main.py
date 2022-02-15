@@ -28,17 +28,27 @@ class Button:
         self.height = height
         self.x = x
         self.y = y
-        self.btn_color = WHITE
+        self.btn_color = PURPLE
         self.color_hovered = YELLOW
-        self.text_color = BLACK
+        self.text_color = YELLOW
+        self.text_color_hovered = PURPLE
         self.text = None
         self.action = None
 
-    def set_colors(self, btn_color = None, color_hovered = None, text_color = None):
+    def set_colors(self, btn_color = None, color_hovered = None, text_color = None, text_color_hovered = None):
         """Setting colors for the button"""
-        self.btn_color = btn_color
-        self.color_hovered = color_hovered
-        self.text_color = text_color
+        if btn_color != None:
+            self.btn_color = btn_color
+
+        if color_hovered != None:
+            self.color_hovered = color_hovered
+
+        if text_color != None:
+            self.text_color = text_color
+
+        if text_color_hovered != None:
+            self.text_color_hovered = text_color_hovered
+
         return self
 
     def set_text(self, text):
@@ -57,11 +67,12 @@ class Button:
 
         if self.x <= loc_mouse[0] <= self.x + self.width and self.y <= loc_mouse[1] <= self.y + self.height:
             pygame.draw.rect(WIN, self.color_hovered, [self.x, self.y, self.width, self.height], border_radius = 30)
+            message = buttons_font.render(self.text, True, self.text_color_hovered)
 
         else:
             pygame.draw.rect(WIN, self.btn_color, [self.x, self.y, self.width, self.height], border_radius = 30)
+            message = buttons_font.render(self.text, True, self.text_color)
 
-        message = buttons_font.render(self.text, True , self.text_color)
         WIN.blit(message , (self.x + self.width/2 - message.get_width()/2, self.y + self.height/2 - message.get_height()/2))
 
     def obj_type(self):
@@ -69,17 +80,22 @@ class Button:
         return "button"
 
 
+def local_thread():
+    """Thread function for local"""
+    os.system("python3 local_socket.py")
+
 def socket_thread():
     """Thread function for socket"""
     os.system("python3 websocket.py")
 
 def multi_btn():
     """Multi button action"""
-    game_socket = _thread.start_new_thread(socket_thread)
-    launch_btn()
+    game_socket = _thread.start_new_thread(socket_thread, ())
+    os.system("python3 game.py")
 
-def launch_btn():
-    """Launch button action"""
+def local_btn():
+    """Local button action"""
+    game_socket = _thread.start_new_thread(local_thread, ())
     os.system("python3 game.py")
 
 def quit_btn():
@@ -103,7 +119,7 @@ def back_to_main():
     menus = {0: True, 1: False, 2: False}
 
 main_menu_objs = []
-main_menu_objs.append(Button(120, 260, 200, 100).set_text("Partie Locale").set_action(launch_btn))
+main_menu_objs.append(Button(120, 260, 200, 100).set_text("Partie Locale").set_action(local_btn))
 main_menu_objs.append(Button(400, 260, 200, 100).set_text("Partie Multi").set_action(multi_btn))
 main_menu_objs.append(Button(280, 420, 160, 70).set_text("Règles").set_action(rules_btn))
 main_menu_objs.append(Button(280, 520, 160, 70).set_text("Crédits").set_action(about_btn))
