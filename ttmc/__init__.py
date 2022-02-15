@@ -16,7 +16,7 @@ else:
             SCREEN_WIDTH = monitor.width
             SCREEN_HEIGHT = monitor.height
 
-WINDOW_WIDTH, WINDOW_HEIGHT = 720, 480
+WINDOW_WIDTH, WINDOW_HEIGHT = 720, 480 + 230
 
 BOARD_WIDTH, BOARD_HEIGHT = 612, 1029
 
