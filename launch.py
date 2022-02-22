@@ -1,6 +1,15 @@
-import os, sys
+import os, sys, platform
 
-os.system("pip3 list >> installed.tmp")
+actual_os = platform.system().lower()
+
+if "windows" in actual_os:
+    COMMAND = ""
+
+else:
+    COMMAND = "3"
+
+
+os.system(f"pip{COMMAND} list >> installed.tmp")
 
 if not os.path.exists("installed.tmp"):
     print("Fichier contenant les packages installés introuvable.")
@@ -16,8 +25,8 @@ with open("requirements.txt", 'r', encoding='utf8') as req:
         module = module.replace("\n", "").replace(" ", "")
         if module not in installed:
             print(f"Installation du module {module} nécessaire au fonctionnement du jeu...")
-            os.system(f"python3 -m pip install {module}")
+            os.system(f"python{COMMAND} -m pip install {module}")
             print("Installation terminée !")
 
 os.remove("installed.tmp")
-os.system("python3 main.py")
+os.system(f"python{COMMAND} main.py")
