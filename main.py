@@ -15,8 +15,6 @@ if "windows" in actual_os:
 else:
     COMMAND = "3"
 
-os.chdir(os.path.dirname(__file__))
-
 pygame.init()
 
 clock = pygame.time.Clock()
