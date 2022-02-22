@@ -1,10 +1,19 @@
 """Menu principal"""
 import os
 import sys
+import platform
 import _thread
 import pygame
 from pygame.locals import *
 from ttmc import *
+
+actual_os = platform.system().lower()
+
+if "windows" in actual_os:
+    COMMAND = ""
+
+else:
+    COMMAND = "3"
 
 os.chdir(os.path.dirname(__file__))
 
@@ -82,21 +91,21 @@ class Button:
 
 def local_thread():
     """Thread function for local"""
-    os.system("python3 local_socket.py")
+    os.system(f"python{COMMAND} local_socket.py")
 
 def socket_thread():
     """Thread function for socket"""
-    os.system("python3 websocket.py")
+    os.system(f"python{COMMAND} websocket.py")
 
 def multi_btn():
     """Multi button action"""
     game_socket = _thread.start_new_thread(socket_thread, ())
-    os.system("python3 game.py")
+    os.system(f"python{COMMAND} game.py")
 
 def local_btn():
     """Local button action"""
     game_socket = _thread.start_new_thread(local_thread, ())
-    os.system("python3 game.py")
+    os.system(f"python{COMMAND} game.py")
 
 def quit_btn():
     """Quit button action"""
