@@ -8,6 +8,8 @@ import pygame
 from pygame.locals import *
 from ttmc import *
 
+os.chdir(os.path.dirname(__file__))
+
 actual_os = platform.system().lower()
 
 if "windows" in actual_os:
@@ -100,7 +102,7 @@ def socket_thread():
 
 def board():
     """Function for drawing the board"""
-    os.system(f"python{COMMAND} game.py")
+    os.system(f"python{COMMAND} board.py")
 
 def multi_btn():
     """Multi button action"""
@@ -123,19 +125,19 @@ def quit_btn():
 def rules_btn():
     """Rules button action"""
     global menus
-    menus = {0: False, 1: True, 2: False}
+    menus = 1
 
 
 def about_btn():
     """About button action"""
     global menus
-    menus = {0: False, 1: False, 2: True}
+    menus = 2
 
 
 def back_to_main():
     """Back button action"""
     global menus
-    menus = {0: True, 1: False, 2: False}
+    menus = 0
 
 
 main_menu_objs = []
@@ -151,7 +153,7 @@ rules_menu_objs = [back_button]
 
 about_objs = [back_button]
 
-menus = {0: True, 1: False, 2: False} # 0 = main menu, 1 = rules menu, 2 = about menu
+menus = 0 # 0 = main menu, 1 = rules menu, 2 = about menu
 
 objects = [main_menu_objs, rules_menu_objs, about_objs]
 
@@ -167,19 +169,16 @@ while True:
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            for menu, value in menus.items():
-                if value:
-                    for dysp_obj in objects[menu]:
-                        if dysp_obj.obj_type() == "button":
-                            if dysp_obj.x <= mouse[0] <= dysp_obj.x + dysp_obj.width and dysp_obj.y <= mouse[1] <= dysp_obj.y + dysp_obj.height:
-                                dysp_obj.action()
+
+            for dysp_obj in objects[menus]:
+                if dysp_obj.obj_type() == "button":
+                    if dysp_obj.x <= mouse[0] <= dysp_obj.x + dysp_obj.width and dysp_obj.y <= mouse[1] <= dysp_obj.y + dysp_obj.height:
+                        dysp_obj.action()
 
     WIN.blit(BACKGROUND, (0, 0))
     WIN.blit(MENU_LOGO, (WINDOW_WIDTH//2 - MENU_LOGO.get_width()//2, 10))
 
-    for menu, value in menus.items():
-        if value:
-            for dysp_obj in objects[menu]:
-                dysp_obj.show()
+    for dysp_obj in objects[menus]:
+        dysp_obj.show()
 
     clock.tick(FPS)
