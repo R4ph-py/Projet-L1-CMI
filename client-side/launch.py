@@ -12,10 +12,6 @@ else:
 
 os.system(f"pip{COMMAND} list >> installed.tmp")
 
-if not os.path.exists("installed.tmp"):
-    print("Fichier contenant les packages installés introuvable.")
-    sys.exit()
-
 with open("installed.tmp", 'r', encoding='utf8') as inst:
     installed = inst.readlines()
 
