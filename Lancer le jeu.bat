@@ -1,3 +1,3 @@
 @echo off
 
-python3 launch.py
+python launch.py
