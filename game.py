@@ -1,8 +1,9 @@
 """Gestionnaire de plateau"""
+#!/usr/bin/python3
 import os
-from ttmc import *
 import pygame
 from pygame.locals import *
+from ttmc import *
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = f"{0},{0}"
 

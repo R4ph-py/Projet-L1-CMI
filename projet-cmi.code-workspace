@@ -3,9 +3,6 @@
 		{
 			"name": "Projet-L1-CMI",
 			"path": "."
-		},
-		{
-			"path": "..\\pygame test"
 		}
 	],
 	"settings": {}

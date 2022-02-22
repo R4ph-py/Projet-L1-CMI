@@ -1,3 +1,5 @@
+"""Préparation au lancement du jeu"""
+#!/usr/bin/python3
 import os, sys, platform
 
 actual_os = platform.system().lower()
@@ -7,7 +9,6 @@ if "windows" in actual_os:
 
 else:
     COMMAND = "3"
-
 
 os.system(f"pip{COMMAND} list >> installed.tmp")
 

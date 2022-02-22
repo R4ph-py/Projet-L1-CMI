@@ -1,4 +1,5 @@
 """Menu principal"""
+#!/usr/bin/python3
 import os
 import sys
 import platform
@@ -89,41 +90,53 @@ class Button:
 
 def local_thread():
     """Thread function for local"""
-    os.system(f"python{COMMAND} local_socket.py")
+    os.system(f"python{COMMAND} local_game.py")
+
 
 def socket_thread():
     """Thread function for socket"""
-    os.system(f"python{COMMAND} websocket.py")
+    os.system(f"python{COMMAND} online_game.py")
+
+
+def board():
+    """Function for drawing the board"""
+    os.system(f"python{COMMAND} game.py")
 
 def multi_btn():
     """Multi button action"""
     game_socket = _thread.start_new_thread(socket_thread, ())
-    os.system(f"python{COMMAND} game.py")
+    board()
+
 
 def local_btn():
     """Local button action"""
     game_socket = _thread.start_new_thread(local_thread, ())
-    os.system(f"python{COMMAND} game.py")
+    board()
+
 
 def quit_btn():
     """Quit button action"""
     pygame.quit()
     sys.exit()
 
+
 def rules_btn():
     """Rules button action"""
     global menus
     menus = {0: False, 1: True, 2: False}
+
 
 def about_btn():
     """About button action"""
     global menus
     menus = {0: False, 1: False, 2: True}
 
+
 def back_to_main():
     """Back button action"""
     global menus
     menus = {0: True, 1: False, 2: False}
+
 
 main_menu_objs = []
 main_menu_objs.append(Button(120, 260, 200, 100).set_text("Partie Locale").set_action(local_btn))
