@@ -3,6 +3,8 @@
 import os
 import platform
 
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
 actual_os = platform.system().lower()
 
 if "windows" in actual_os:

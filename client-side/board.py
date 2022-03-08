@@ -2,8 +2,11 @@
 #!/usr/bin/python3
 import os
 import pygame
+import json
 from pygame.locals import *
 from ttmc import *
+
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = f"{0},{0}"
 
@@ -20,7 +23,8 @@ RUN = True
 clock = pygame.time.Clock()
 
 while RUN:
-    pygame.display.update()
+    with open("game_status.json", "r", encoding="utf-8") as status_file:
+        game_status = json.load(status_file.read())
 
     pressed_keys = pygame.key.get_pressed()
 
@@ -36,4 +40,5 @@ while RUN:
 
     WIN.blit(BOARD, (SCREEN_WIDTH - BOARD.get_width(),0))
 
+    pygame.display.update()
     clock.tick(FPS)

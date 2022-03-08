@@ -8,7 +8,7 @@ import pygame
 from pygame.locals import *
 from ttmc import *
 
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 actual_os = platform.system().lower()
 
@@ -104,6 +104,7 @@ def board():
     """Function for drawing the board"""
     os.system(f"python{COMMAND} board.py")
 
+
 def multi_btn():
     """Multi button action"""
     game_socket = _thread.start_new_thread(socket_thread, ())
@@ -124,20 +125,20 @@ def quit_btn():
 
 def rules_btn():
     """Rules button action"""
-    global menus
-    menus = 1
+    global ACTUAL_MENU
+    ACTUAL_MENU = 1
 
 
 def about_btn():
     """About button action"""
-    global menus
-    menus = 2
+    global ACTUAL_MENU
+    ACTUAL_MENU = 2
 
 
 def back_to_main():
     """Back button action"""
-    global menus
-    menus = 0
+    global ACTUAL_MENU
+    ACTUAL_MENU = 0
 
 
 main_menu_objs = []
@@ -153,7 +154,7 @@ rules_menu_objs = [back_button]
 
 about_objs = [back_button]
 
-menus = 0 # 0 = main menu, 1 = rules menu, 2 = about menu
+ACTUAL_MENU = 0 # 0 = main menu, 1 = rules menu, 2 = about menu
 
 objects = [main_menu_objs, rules_menu_objs, about_objs]
 
@@ -170,7 +171,7 @@ while True:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
 
-            for dysp_obj in objects[menus]:
+            for dysp_obj in objects[ACTUAL_MENU]:
                 if dysp_obj.obj_type() == "button":
                     if dysp_obj.x <= mouse[0] <= dysp_obj.x + dysp_obj.width and dysp_obj.y <= mouse[1] <= dysp_obj.y + dysp_obj.height:
                         dysp_obj.action()
@@ -178,7 +179,7 @@ while True:
     WIN.blit(BACKGROUND, (0, 0))
     WIN.blit(MENU_LOGO, (WINDOW_WIDTH//2 - MENU_LOGO.get_width()//2, 10))
 
-    for dysp_obj in objects[menus]:
+    for dysp_obj in objects[ACTUAL_MENU]:
         dysp_obj.show()
 
     clock.tick(FPS)
