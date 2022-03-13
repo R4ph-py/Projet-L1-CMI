@@ -17,48 +17,74 @@ except socket.error as e:
     print(str(e))
 
 class Server:
+    """Class pour un serveur"""
     def __init__(self, server_id, exp_c_num):
         self.id = server_id
-        self.clients = []
+        self.clients = {}
         self.todo_action = None
         self.done_actions = []
         self.clients_num = exp_c_num
         self.game_launched = 0
 
-    def add_client(self, client):
+    def add_client(self, client, address):
+        """Ajoute un client au serveur"""
         if not self.game_launched:
-            self.clients.append(client)
+            self.clients[address] = client
             return self
 
         return 0
 
-    def test_clients(self):
-        counter = 0
-        for client in self.clients:
-            try:
-                client.ping()
-
-            except socket.error:
-                self.clients.pop(counter)
-
-            counter += 1
-
-    def stop(self):
-        global SERVERS_LIST
+    def remove_client(self, address):
+        """Enlève un client au serveur"""
         try:
-            for client in self.clients:
-                client.close()
+            self.clients[address].close()
 
         finally:
-            count = 0
-            for serv in SERVERS_LIST:
-                if serv.id == self.id:
-                    SERVERS_LIST.pop(count)
-                    break
+            del self.clients[address]
 
-                count += 1
+    def send_to(self, address, message):
+        """Envoie un message à un client du serveur en fonction de son adresse"""
+        for adr, clnt in self.clients.items():
+            if adr == address:
 
-    def start(self):
+                try:
+                    clnt.send(str.encode(message))
+
+                except socket.error:
+                    self.remove_client(adr)
+
+    def send_all(self, message):
+        """Envoie un message à tous les clients du serveur"""
+        for adr, clnt in self.clients.items():
+            try:
+                clnt.send(str.encode(message))
+
+            except socket.error:
+                self.remove_client(adr)
+
+    def test_clients(self):
+        """Envoie un ping à tous les clients"""
+        for adr, clnt in self.clients.items():
+            try:
+                clnt.ping()
+
+            except socket.error:
+                self.remove_client(adr)
+
+    def stop(self):
+        """Arrête le serveur"""
+        global SERVERS_LIST
+        try:
+            for adr, _ in self.clients.items():
+                self.send_all("{\"message\": \"closing server\"}")
+                self.remove_client(adr)
+
+        finally:
+            del SERVERS_LIST[self.id]
+            _thread.exit()
+
+    def wait(self):
+        """Attend que tous les joueurs soient connéctés"""
         self.test_clients()
 
         if len(self.clients) == 0:
@@ -69,20 +95,32 @@ class Server:
             act_t = time.time()
             stop_time = act_t + 300
             for client in self.clients:
-                client.send(str.encode("{\"message\": \"Waiting for clients\", \"wait\": \"" + time_left + "\"}"))
+                client.send(str.encode("{\"message\": \"waiting for clients\", \"wait\": \"" + time_left + "\"}"))
 
-                time_left = stop_time - time.time()
+            time_left = stop_time - time.time()
 
-        self.game_launched = 1
-        print(f"Jeu démarré sur serveur {self.id}")
+        if len(self.clients) == self.clients_num:
+            self.game_launched = 1
+            print(f"Jeu démarré sur serveur {self.id}")
+            self.start()
 
+        elif len(self.clients) < self.clients_num:
+            self.send_all("{\"error\": \"not enough clients\"}")
+            self.stop()
 
-SERVERS_LIST = []
+        else:
+            self.send_all("{\"error\": \"too much clients\"}")
+            self.stop()
+
+    def start(self):
+        """Démarre la partie"""
+
+SERVERS_LIST = {}
 
 s.listen(2)
 print("En attente de connexion")
 
-def client_thread(address, client):
+def client_thread(client, address):
     """Client thread"""
     global SERVERS_LIST
     try:
@@ -98,20 +136,14 @@ def client_thread(address, client):
                     if serv.id == server_id:
                         server_id = random.randint(1000, 9999)
 
-                server_num = len(SERVERS_LIST)
-                SERVERS_LIST.append(Server(server_id, data_j["players"]).add_client(client))
-                _thread.start_new_thread(SERVERS_LIST[server_num].start, (server_id,))
+                SERVERS_LIST[server_id] = Server(server_id, data_j["players"]).add_client(client, address)
+                _thread.start_new_thread(SERVERS_LIST[server_id].wait, ())
 
             elif data_j["asw"] == "connect":
-                for serv in SERVERS_LIST:
-                    if serv.id == data_j["server_id"]:
-                        serv.add_client(client)
-                        found = 1
-                        break
+                try:
+                    SERVERS_LIST[data_j["server_id"]].add_client(client, address)
 
-                    found = 0
-
-                if not found:
+                except KeyError:
                     c.send(str.encode("{\"error\": \"server not found\"}"))
 
         except json.decoder.JSONDecodeError:
