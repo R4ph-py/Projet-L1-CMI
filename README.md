@@ -1,5 +1,5 @@
 # Projet L1 CMI
-## Pas encore fonctionnel.
+## Pas encore fonctionnel
 
 ![TTMC Logo](/client-side/ttmc/logo_accueil.png)
 
@@ -21,3 +21,7 @@
       - [ ] Choix de difficulté
       - [ ] Questions
       - [ ] Réponses
+
+- [ ] Local
+
+- [ ] Multijoueur

@@ -1,4 +1,5 @@
 @echo off
 
-python launch.py
-pause
+python pre_launch.py
+
+exit 0
