@@ -29,4 +29,6 @@ with open("requirements.txt", 'r', encoding='utf8') as req:
             print("Installation terminée !")
 
 os.remove("installed.tmp")
-os.system(f"python{COMMAND} main.py")
+
+import ttmc
+ttmc.main.start()

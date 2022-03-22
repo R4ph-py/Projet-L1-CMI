@@ -22,6 +22,10 @@
       - [ ] Questions
       - [ ] Réponses
 
-- [ ] Local
+- [ ] Local :
+  - [ ] Multi machines
+  - [ ] Tous sur la même
 
-- [ ] Multijoueur
+- [ ] Multijoueur :
+  - [ ] Serveur
+  - [ ] Client

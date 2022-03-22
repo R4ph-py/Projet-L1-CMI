@@ -16,6 +16,9 @@ else:
             SCREEN_WIDTH = monitor.width
             SCREEN_HEIGHT = monitor.height
 
+
+GAME_VERSION = 1.0
+
 WINDOW_WIDTH, WINDOW_HEIGHT = 720, 480 + 230
 
 BOARD_WIDTH, BOARD_HEIGHT = 612, 1029
@@ -36,5 +39,6 @@ FPS = 60
 
 BACKGROUND = pygame.image.load('Background.jpg')
 BOARD = pygame.image.load('Plateau.jpg')
+BOARD_FAT = pygame.image.load('Plateau_fat.jpg')
 ICON = pygame.image.load('icon.png')
 MENU_LOGO = pygame.image.load('logo_accueil.png')
