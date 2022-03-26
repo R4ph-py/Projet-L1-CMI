@@ -118,17 +118,17 @@ class Button:
 
 def local_thread():
     """Thread function for local"""
-    ttmc.local_game.start()
+    os.system(f"python{COMMAND} local_game.py")
 
 
 def socket_thread():
     """Thread function for socket"""
-    ttmc.online_game.start()
+    os.system(f"python{COMMAND} online_game.py")
 
 
 def board():
     """Function for drawing the board"""
-    ttmc.board.start()
+    os.system(f"python{COMMAND} board.py")
 
 
 def multi_btn():
@@ -173,7 +173,7 @@ def start():
     while stay:
         pygame.display.update()
 
-        WIN.blit(BACKGROUND, (0, 0))
+        WIN.blit(BG, (0, 0))
         WIN.blit(MENU_LOGO, (WINDOW_WIDTH//2 - MENU_LOGO.get_width()//2, 10))
 
         for dysp_obj in objects[ACTUAL_MENU]:
@@ -212,7 +212,7 @@ pygame.display.set_icon(ICON)
 
 clock = pygame.time.Clock()
 
-BACKGROUND = pygame.transform.scale(BACKGROUND, (WINDOW_WIDTH, WINDOW_HEIGHT))
+BG = pygame.transform.scale(BACKGROUND, (WINDOW_WIDTH, WINDOW_HEIGHT))
 
 main_menu_objs = []
 main_menu_objs.append(Button(120, 260, 200, 100).set_text("Partie Locale").set_action(local_btn))

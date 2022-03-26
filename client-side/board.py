@@ -20,7 +20,7 @@ pygame.display.set_icon(ICON)
 
 clock = pygame.time.Clock()
 
-BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
+BG = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 STATE = 0 # 0 = config players, 1 = game itself
 
@@ -32,11 +32,11 @@ def start():
     while stay:
         pygame.display.update()
 
-        WIN.blit(BACKGROUND, (0, 0))
+        WIN.blit(BG, (0, 0))
         WIN.blit(BOARD_FAT, (SCREEN_WIDTH // 2 - BOARD_FAT.get_width() // 2, SCREEN_HEIGHT - BOARD_FAT.get_height()))
 
-        for dysp_obj in objects[STATE]:
-            dysp_obj.show()
+        # for dysp_obj in objects[STATE]:
+        #     dysp_obj.show()
 
         pressed_keys = pygame.key.get_pressed()
 
@@ -49,11 +49,14 @@ def start():
                 pygame.quit()
                 stay = 0
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    for dysp_obj in objects[STATE]:
-                        if dysp_obj.obj_type() == "button":
-                            if dysp_obj.collide_mouse():
-                                dysp_obj.action()
+            # if event.type == pygame.MOUSEBUTTONDOWN:
+            #     if event.button == 1:
+            #         for dysp_obj in objects[STATE]:
+            #             if dysp_obj.obj_type() == "button":
+            #                 if dysp_obj.collide_mouse():
+            #                     dysp_obj.action()
 
         clock.tick(FPS)
+
+if __name__ == '__main__':
+    start()
