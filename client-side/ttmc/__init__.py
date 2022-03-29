@@ -3,7 +3,7 @@ import os
 import pygame
 from screeninfo import get_monitors
 
-os.chdir(os.path.dirname(__file__))
+actual_path = os.path.dirname(__file__)
 
 # Récupérer les dimensions de l'écran
 if len(get_monitors()) == 1:
@@ -15,7 +15,6 @@ else:
         if monitor.is_primary:
             SCREEN_WIDTH = monitor.width
             SCREEN_HEIGHT = monitor.height
-
 
 GAME_VERSION = 1.0
 
@@ -37,8 +36,8 @@ WHITE = (255, 255, 255)
 
 FPS = 60
 
-BACKGROUND = pygame.image.load('Background.jpg')
-BOARD = pygame.image.load('Plateau.jpg')
-BOARD_FAT = pygame.image.load('Plateau_fat.jpg')
-ICON = pygame.image.load('icon.png')
-MENU_LOGO = pygame.image.load('logo_accueil.png')
+BACKGROUND = pygame.image.load(f"{actual_path}/Background.jpg")
+BOARD = pygame.image.load(f"{actual_path}/Plateau.jpg")
+BOARD_FAT = pygame.image.load(f"{actual_path}/Plateau_fat.jpg")
+ICON = pygame.image.load(f"{actual_path}/icon.png")
+MENU_LOGO = pygame.image.load(f"{actual_path}/logo_accueil.png")
