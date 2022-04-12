@@ -19,7 +19,7 @@ else:
 
 def launch_board(is_online):
     """Launch board"""
-    os.system(f"python{COMMAND} {actual_path}/board.py {is_online}")
+    os.system(f"python{COMMAND} \"{actual_path}/board.py\" {is_online}")
 
 def multi_btn():
     """Multi button action"""
@@ -72,13 +72,13 @@ def start():
     bg = pygame.transform.scale(BACKGROUND, (WINDOW_WIDTH, WINDOW_HEIGHT))
 
     main_menu_objs = []
-    main_menu_objs.append(Button(120, 260, 200, 100, window).set_text("Partie Locale").set_action(local_btn))
-    main_menu_objs.append(Button(400, 260, 200, 100, window).set_text("Partie Multi").set_action(multi_btn))
-    main_menu_objs.append(Button(280, 420, 160, 70, window).set_text("Règles").set_action(rules_btn))
-    main_menu_objs.append(Button(280, 520, 160, 70, window).set_text("Crédits").set_action(about_btn))
-    main_menu_objs.append(Button(560, 620, 120, 70, window).set_text("Quitter").set_action(quit_menu))
+    main_menu_objs.append(Button(220, 310, 200, 100, window).set_size(35).set_text("Partie Locale").set_action(local_btn))
+    main_menu_objs.append(Button(500, 310, 200, 100, window).set_size(35).set_text("Partie Multi").set_action(multi_btn))
+    main_menu_objs.append(Button(360, 455, 160, 70, window).set_size(35).set_text("Règles").set_action(rules_btn))
+    main_menu_objs.append(Button(360, 555, 160, 70, window).set_size(35).set_text("Crédits").set_action(about_btn))
+    main_menu_objs.append(Button(620, 655, 120, 70, window).set_size(35).set_text("Quitter").set_action(quit_menu))
 
-    back_button = Button(25, 20, 120, 50, window).set_text("Retour").set_action(back_to_main)
+    back_button = Button(85, 45, 120, 50, window).set_size(35).set_text("Retour").set_action(back_to_main)
 
     rules_menu_objs = [back_button]
 

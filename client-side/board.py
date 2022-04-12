@@ -28,7 +28,24 @@ bg = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 text_font = pygame.font.SysFont("Corbel", 60)
 text_font_small = pygame.font.SysFont("Corbel", 50)
 
-objects = [Map(board_window)]
+def difficulty_choose(diff):
+    """Difficulté choisie"""
+    print(diff)
+
+game_objs = [Map(board_window)]
+map_x = game_objs[0].bmap_x
+game_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 6, "Tour de X", board_window).set_colors(YELLOW).set_size(100).set_id("tour").has_background(1, PURPLE))
+game_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 3, "Tu te mets combien en X ?", board_window).set_colors(YELLOW).set_size(60).set_id("tour").has_background(1, PURPLE))
+game_objs.append(Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("1").set_size(40).set_action(difficulty_choose, 1))
+game_objs.append(Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("2").set_size(40).set_action(difficulty_choose, 2))
+game_objs.append(Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("3").set_size(40).set_action(difficulty_choose, 3))
+game_objs.append(Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("4").set_size(40).set_action(difficulty_choose, 4))
+game_objs.append(Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("5").set_size(40).set_action(difficulty_choose, 5))
+game_objs.append(Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window).set_text("6").set_size(40).set_action(difficulty_choose, 6))
+game_objs.append(Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window).set_text("7").set_size(40).set_action(difficulty_choose, 7))
+game_objs.append(Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window).set_text("8").set_size(40).set_action(difficulty_choose, 8))
+game_objs.append(Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window).set_text("9").set_size(40).set_action(difficulty_choose, 9))
+game_objs.append(Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window).set_text("10").set_size(40).set_action(difficulty_choose, 10))
 
 def start(players_list):
     """Démarrer le plateau"""
@@ -37,9 +54,8 @@ def start(players_list):
         pygame.display.update()
 
         board_window.blit(bg, (0, 0))
-        board_window.blit(BOARD_FAT, (SCREEN_WIDTH // 2 - BOARD_FAT.get_width() // 2, SCREEN_HEIGHT - BOARD_FAT.get_height()))
 
-        for dysp_obj in objects:
+        for dysp_obj in game_objs:
             dysp_obj.show()
 
         pressed_keys = pygame.key.get_pressed()
@@ -56,7 +72,7 @@ def start(players_list):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 button = event.button
                 if button == 1:
-                    for dysp_obj in objects:
+                    for dysp_obj in game_objs:
                         if dysp_obj.obj_type() == "button":
                             if dysp_obj.collide_mouse():
                                 dysp_obj.action()
@@ -65,18 +81,18 @@ def start(players_list):
                             dysp_obj.scroll(button)
 
                 elif button == 4 or button == 5:
-                    for dysp_obj in objects:
+                    for dysp_obj in game_objs:
                         if dysp_obj.obj_type() == "map":
                             dysp_obj.scroll(button)
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 button = event.button
                 if button == 1:
-                    for dysp_obj in objects:
+                    for dysp_obj in game_objs:
                         if dysp_obj.obj_type() == "map":
                             dysp_obj.released_mouse()
 
-            for dysp_obj in objects:
+            for dysp_obj in game_objs:
                 if dysp_obj.obj_type() == "map":
                     dysp_obj.scroll()
 
@@ -111,7 +127,8 @@ def start_local():
                 if event.key == K_RETURN or event.key == K_KP_ENTER:
                     if text:
                         players_num = int(text)
-                        done = 1
+                        if players_num > 1:
+                            done = 1
 
                 elif event.key == K_BACKSPACE:
                     text = text[:-1]
@@ -119,7 +136,7 @@ def start_local():
                 else:
                     inp = event.unicode
                     if inp.isdigit():
-                        text += str(inp)
+                        text = str(inp)
                         if int(text) > 4:
                             text = "4"
 
@@ -313,8 +330,8 @@ def start_online():
             s.close()
 
     players_num = 0
-    exis_s = Button(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 2, 200, 50, board_window).set_text("Se connecter à un\nserveur existant").set_action(existing_server)
-    new_s = Button(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 2, 200, 50, board_window).set_text("Nouveau serveur").set_action(new_server)
+    exis_s = Button(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 2, 200, 50, board_window).set_text("Se connecter à un serveur existant").set_action(existing_server)
+    new_s = Button(SCREEN_WIDTH // 3 * 2, SCREEN_HEIGHT // 2, 200, 50, board_window).set_text("Nouveau serveur").set_action(new_server)
 
     text = ""
     done = 0
@@ -344,8 +361,10 @@ def start_online():
         clock.tick(FPS)
 
 
-if len(sys.argv) > 1 and sys.argv[1] == "1":
-    start_online()
+# if len(sys.argv) > 1 and sys.argv[1] == "1":
+#     start_online()
 
-else:
-    start_local()
+# else:
+#     start_local()
+
+start([])

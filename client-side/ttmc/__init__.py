@@ -48,10 +48,19 @@ class Text:
         self.x = x
         self.y = y
         self.text = text
+        self.window = window
         self.font = "Corbel"
         self.size = 20
         self.text_color = BLACK
-        self.window = window
+        self.id = None
+        self.has_back = False
+        self.back_color = WHITE
+
+    def has_background(self, has_back, back_color = WHITE):
+        """Set the background"""
+        self.has_back = has_back
+        self.back_color = back_color
+        return self
 
     def set_colors(self, text_color):
         """Setting color for the text"""
@@ -73,16 +82,28 @@ class Text:
         self.size = size
         return self
 
+    def set_id(self, id_s):
+        """Set the id"""
+        self.id = id_s
+        return self
+
     def show(self):
         """Show text"""
         text_font = pygame.font.SysFont(self.font, self.size)
-        message = text_font.render(self.text, True, self.text_color)
+        for i in range(0, len(self.text), 18):
+            message = text_font.render(self.text[i:i + 18], True, self.text_color)
 
-        self.window.blit(message, (self.x - message.get_width() // 2, self.y - message.get_height() // 2))
+            coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // 18 * (message.get_height() + 20))
+
+            if self.has_back:
+                rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
+                pygame.draw.rect(self.window, self.back_color, rect, border_radius=10)
+
+            self.window.blit(message, coord)
 
     def obj_type(self):
         """Returns the object type"""
-        return "text"
+        return "text", self.id
 
 
 class Button:
@@ -92,15 +113,18 @@ class Button:
         self.y = y
         self.width = width
         self.height = height
+        self.window = window
         self.btn_color = PURPLE
         self.text_color = YELLOW
         self.btn_color_hovered = YELLOW
         self.text_color_hovered = PURPLE
         self.text = ""
         self.font = "Corbel"
-        self.action = None
-        self.rect = pygame.Rect(x, y, width, height)
-        self.window = window
+        self.func = None
+        self.args = None
+        self.size = 20
+        self.rect = None
+        self.render_text()
 
     def set_colors(self, btn_color = None, btn_color_hovered = None, text_color = None, text_color_hovered = None):
         """Setting colors for the button"""
@@ -123,24 +147,54 @@ class Button:
         self.text = text
         return self
 
-    def set_action(self, action):
-        """Set action of the button"""
-        self.action = action
+    def set_font(self, font):
+        """Set font for the text"""
+        self.font = font
         return self
 
-    def show(self):
-        """Show button"""
-        button_font = pygame.font.SysFont(self.font, 35)
+    def set_size(self, size):
+        """Set font size for the text"""
+        self.size = size
+        return self
 
-        if self.collide_mouse():
-            pygame.draw.rect(self.window, self.btn_color_hovered, self.rect, border_radius = 30)
+    def set_action(self, func, *args):
+        """Set action of the button"""
+        self.func = func
+        self.args = args
+        return self
+
+    def action(self):
+        """Execute the action of the button"""
+        if self.func is not None:
+            self.func(*self.args)
+
+    def render_text(self, hovered = 0):
+        """Render text"""
+        button_font = pygame.font.SysFont(self.font, self.size)
+        if hovered:
             message = button_font.render(self.text, True, self.text_color_hovered)
 
         else:
-            pygame.draw.rect(self.window, self.btn_color, self.rect, border_radius = 30)
             message = button_font.render(self.text, True, self.text_color)
 
-        self.window.blit(message, (self.x + self.width/2 - message.get_width()/2, self.y + self.height/2 - message.get_height()/2))
+        self.rect = pygame.Rect(self.x - self.width/2, self.y - self.height/2, self.width, self.height)
+
+        return message
+
+    def show(self):
+        """Show button"""
+
+        collide = self.collide_mouse()
+
+        message = self.render_text(collide)
+
+        if collide:
+            pygame.draw.rect(self.window, self.btn_color_hovered, self.rect, border_radius = 30)
+
+        else:
+            pygame.draw.rect(self.window, self.btn_color, self.rect, border_radius = 30)
+
+        self.window.blit(message, (self.x - message.get_width()/2, self.y - message.get_height()/2))
 
     def collide_mouse(self):
         """Check if mouse is over the button"""
@@ -158,12 +212,12 @@ class Map:
         self.window = window
 
         self.little_board = pygame.transform.scale(BOARD, (int(BOARD.get_width()*0.4), int(BOARD.get_height()*0.4)))
-        self.lmap_x = SCREEN_WIDTH - self.little_board.get_width()
-        self.lmap_y = 0
+        self.lmap_x = SCREEN_WIDTH - self.little_board.get_width() - 20
+        self.lmap_y = 20
         self.lmap_rect = pygame.Rect(self.lmap_x, self.lmap_y, self.little_board.get_width(), self.little_board.get_height())
 
         self.big_board = BOARD_FAT
-        self.bmap_x = SCREEN_WIDTH // 2 - self.big_board.get_width() // 2
+        self.bmap_x = self.lmap_x - 20 - self.big_board.get_width()
         self.bmap_y = SCREEN_HEIGHT - self.big_board.get_height()
         self.bmap_rect = pygame.Rect(self.bmap_x, self.bmap_y, self.big_board.get_width(), self.big_board.get_height())
         self.bmap_min_y = self.bmap_y
@@ -210,7 +264,7 @@ class Map:
     def show(self):
         """Show map"""
         self.window.blit(self.little_board, (self.lmap_x, self.lmap_y))
-        self.window.blit(self.scrolli, (self.lmap_x, (self.bmap_max_y - self.bmap_y) * self.lob_ratio))
+        self.window.blit(self.scrolli, (self.lmap_x, 20 + (self.bmap_max_y - self.bmap_y) * self.lob_ratio))
         self.window.blit(self.big_board, (self.bmap_x, self.bmap_y))
         return self
 
