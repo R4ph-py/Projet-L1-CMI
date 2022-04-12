@@ -22,9 +22,7 @@
       - [ ] Questions
       - [ ] Réponses
 
-- [ ] Local :
-  - [ ] Multi machines
-  - [ ] Tous sur la même
+- [ ] Local
 
 - [ ] Multijoueur :
   - [ ] Serveur
