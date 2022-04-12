@@ -4,74 +4,10 @@ import os
 import sys
 import pygame
 import socket
+import json
+from time import sleep, time
 from pygame.locals import *
 from ttmc import *
-
-class Button:
-    """Button constructor"""
-    def __init__(self, x, y, width, height, window):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.btn_color = PURPLE
-        self.text_color = YELLOW
-        self.btn_color_hovered = YELLOW
-        self.text_color_hovered = PURPLE
-        self.text = ""
-        self.font = "Corbel"
-        self.action = None
-        self.rect = pygame.Rect(x, y, width, height)
-        self.window = window
-
-    def set_colors(self, btn_color = None, btn_color_hovered = None, text_color = None, text_color_hovered = None):
-        """Setting colors for the button"""
-        if btn_color is not None:
-            self.btn_color = btn_color
-
-        if btn_color_hovered is not None:
-            self.btn_color_hovered = btn_color_hovered
-
-        if text_color is not None:
-            self.text_color = text_color
-
-        if text_color_hovered is not None:
-            self.text_color_hovered = text_color_hovered
-
-        return self
-
-    def set_text(self, text):
-        """Set text for the button"""
-        self.text = text
-        return self
-
-    def set_action(self, action):
-        """Set action of the button"""
-        self.action = action
-        return self
-
-    def show(self):
-        """Show button"""
-        button_font = pygame.font.SysFont(self.font, 35)
-
-        if self.collide_mouse():
-            pygame.draw.rect(self.window, self.btn_color_hovered, self.rect, border_radius = 30)
-            message = button_font.render(self.text, True, self.text_color_hovered)
-
-        else:
-            pygame.draw.rect(self.window, self.btn_color, self.rect, border_radius = 30)
-            message = button_font.render(self.text, True, self.text_color)
-
-        self.window.blit(message, (self.x + self.width/2 - message.get_width()/2, self.y + self.height/2 - message.get_height()/2))
-
-    def collide_mouse(self):
-        """Check if mouse is over the button"""
-        loc_mouse = pygame.mouse.get_pos()
-        return 1 if self.rect.collidepoint(loc_mouse) else 0
-
-    def obj_type(self):
-        """Returns the object type"""
-        return "button"
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -92,7 +28,7 @@ bg = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 text_font = pygame.font.SysFont("Corbel", 60)
 text_font_small = pygame.font.SysFont("Corbel", 50)
 
-objects = []
+objects = [Map(board_window)]
 
 def start(players_list):
     """Démarrer le plateau"""
@@ -103,25 +39,46 @@ def start(players_list):
         board_window.blit(bg, (0, 0))
         board_window.blit(BOARD_FAT, (SCREEN_WIDTH // 2 - BOARD_FAT.get_width() // 2, SCREEN_HEIGHT - BOARD_FAT.get_height()))
 
-        # for dysp_obj in objects[state]:
-        #     dysp_obj.show()
+        for dysp_obj in objects:
+            dysp_obj.show()
 
         pressed_keys = pygame.key.get_pressed()
 
         if pressed_keys[K_ESCAPE]:
-            stay = False
+            pygame.quit()
+            sys.exit()
 
         for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
 
-            if event.type == pygame.QUIT:
-                stay = 0
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                button = event.button
+                if button == 1:
+                    for dysp_obj in objects:
+                        if dysp_obj.obj_type() == "button":
+                            if dysp_obj.collide_mouse():
+                                dysp_obj.action()
 
-            # if event.type == pygame.MOUSEBUTTONDOWN:
-            #     if event.button == 1:
-            #         for dysp_obj in objects[state]:
-            #             if dysp_obj.obj_type() == "button":
-            #                 if dysp_obj.collide_mouse():
-            #                     dysp_obj.action()
+                        if dysp_obj.obj_type() == "map":
+                            dysp_obj.scroll(button)
+
+                elif button == 4 or button == 5:
+                    for dysp_obj in objects:
+                        if dysp_obj.obj_type() == "map":
+                            dysp_obj.scroll(button)
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                button = event.button
+                if button == 1:
+                    for dysp_obj in objects:
+                        if dysp_obj.obj_type() == "map":
+                            dysp_obj.released_mouse()
+
+            for dysp_obj in objects:
+                if dysp_obj.obj_type() == "map":
+                    dysp_obj.scroll()
 
         clock.tick(FPS)
 
@@ -142,10 +99,14 @@ def start_local():
         pressed_keys = pygame.key.get_pressed()
 
         if pressed_keys[K_ESCAPE]:
-            players_num = 0
-            break
+            pygame.quit()
+            sys.exit()
 
         for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
             if event.type == KEYDOWN:
                 if event.key == K_RETURN or event.key == K_KP_ENTER:
                     if text:
@@ -193,10 +154,14 @@ def start_local():
             pressed_keys = pygame.key.get_pressed()
 
             if pressed_keys[K_ESCAPE]:
-                players_num = 0
-                break
+                pygame.quit()
+                sys.exit()
 
             for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+
                 if event.type == KEYDOWN:
                     if event.key == K_RETURN or event.key == K_KP_ENTER:
                         if not text:
@@ -252,9 +217,14 @@ def start_online():
 
             if pressed_keys[K_ESCAPE]:
                 s_num = 0
-                break
+                pygame.quit()
+                sys.exit()
 
             for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+
                 if event.type == KEYDOWN:
                     if event.key == K_RETURN or event.key == K_KP_ENTER:
                         if len(text) == 4:
@@ -286,23 +256,61 @@ def start_online():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("cmi-game.ms-corporation.xyz", 80))
         s.setblocking(0)
-        while True:
-            try:
-                msg = s.recv()
 
-            except socket.error as e:
-                err = e.args[0]
-                if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
-                    sleep(1)
-                    print('No data available')
-                    continue
+        try:
+            data = s.recv()
+            reply = data.decode('utf-8')
+
+            try:
+                if not json.loads(reply)["ask"] == "version":
+                    raise json.decoder.JSONDecodeError
+
+                s.send(str.encode(json.dumps({"asw": GAME_VERSION})))
+                data = s.recv()
+                reply = data.decode('utf-8')
+                data_j = json.loads(reply)
+
+                if data_j["ask"] and data_j["ask"] == "new or connect":
+                    s.send(str.encode(json.dumps({"asw": "connect", "server_id": s_num})))
+                    data = s.recv()
+                    reply = data.decode('utf-8')
+                    data_j = json.loads(reply)
+
+                elif data_j["error"] and data_j["error"] == "invalid answer":
+                    print("Not concording versions")
+                    raise json.decoder.JSONDecodeError
 
                 else:
-                    print(e)
-                    sys.exit(1)
+                    raise json.decoder.JSONDecodeError
 
-            finally:
-                pass
+            except json.decoder.JSONDecodeError:
+                s.close()
+
+            except KeyError:
+                s.close()
+
+            # try:
+            #     msg = s.recv()
+
+            # except socket.error as e:
+            #     err = e.args[0]
+            #     if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
+            #         print('No data available')
+            #         continue
+
+            #     else:
+            #         print(e)
+            #         pygame.quit()
+            #         sys.exit(1)
+
+            # finally:
+            #     try:
+            #         if json.loads(msg.decode("utf-8"))["ask"] == "version":
+            #             s.send(json.dumps({"asw": VERSION}).encode())
+
+        except socket.error as cl_err:
+            print(f"Connexion au serveur fermée : {cl_err}")
+            s.close()
 
     players_num = 0
     exis_s = Button(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 2, 200, 50, board_window).set_text("Se connecter à un\nserveur existant").set_action(existing_server)
@@ -316,43 +324,28 @@ def start_online():
         pressed_keys = pygame.key.get_pressed()
 
         if pressed_keys[K_ESCAPE]:
-            s_num = 0
-            break
+            pygame.quit()
+            sys.exit()
 
         for event in pygame.event.get():
-            if event.type == KEYDOWN:
-                if event.key == K_RETURN or event.key == K_KP_ENTER:
-                    if len(text) == 4:
-                        s_num = int(text)
-                        done = 1
+            if event.type == MOUSEBUTTONDOWN:
+                if exis_s.collide_mouse():
+                    existing_server()
+                    done = 1
 
-                elif event.key == K_BACKSPACE:
-                    text = text[:-1]
-
-                else:
-                    inp = event.unicode
-                    if inp.isdigit():
-                        if int(text) < 4:
-                            text += str(inp)
+                elif new_s.collide_mouse():
+                    new_server()
+                    done = 1
 
         board_window.blit(bg, (0, 0))
-        pygame.draw.rect(board_window, PURPLE, ask_rect, border_radius = 10)
-        board_window.blit(ask_text, ask_rect)
-
-        inp_text = text_font_small.render(text, True, YELLOW)
-        inp_rect = inp_text.get_rect()
-        inp_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + ask_rect.height + 10)
-
-        pygame.draw.rect(board_window, PURPLE, inp_rect, border_radius = 10)
-        board_window.blit(inp_text, inp_rect)
+        exis_s.show()
+        new_s.show()
 
         clock.tick(FPS)
 
 
-# if len(sys.argv) > 1 and sys.argv[1] == "1":
-#     start_online()
+if len(sys.argv) > 1 and sys.argv[1] == "1":
+    start_online()
 
-# else:
-#     start_local()
-
-start_local()
+else:
+    start_local()

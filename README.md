@@ -5,16 +5,16 @@
 
 - [x] Installation automatique des packages requis
 
-- [ ] Menu :
+- [x] Menu :
   - [x] Lancement local
   - [x] Lancement multijoueur
-  - [ ] A propos
-  - [ ] Règles
+  - [x] A propos
+  - [x] Règles
 
 - [ ] Plateau :
   - [ ] Affichage :
     - [ ] Partie droite :
-      - [ ] Plateau scrollable
+      - [x] Plateau scrollable
       - [ ] Déplacement des pions
 
     - [ ] Partie gauche :
