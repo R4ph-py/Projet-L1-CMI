@@ -30,12 +30,13 @@ text_font_small = pygame.font.SysFont("Corbel", 50)
 
 def difficulty_choose(diff):
     """Difficulté choisie"""
-    print(diff)
+    return diff
 
 game_objs = [Map(board_window)]
 map_x = game_objs[0].bmap_x
 game_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 6, "Tour de X", board_window).set_colors(YELLOW).set_size(100).set_id("tour").has_background(1, PURPLE))
-game_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 3, "Tu te mets combien en X ?", board_window).set_colors(YELLOW).set_size(60).set_id("tour").has_background(1, PURPLE))
+game_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 3, "Tu te mets combien en X ?", board_window).set_colors(YELLOW).set_size(60).set_id("ttmcQ").has_background(1, PURPLE))
+
 game_objs.append(Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("1").set_size(40).set_action(difficulty_choose, 1))
 game_objs.append(Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("2").set_size(40).set_action(difficulty_choose, 2))
 game_objs.append(Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window).set_text("3").set_size(40).set_action(difficulty_choose, 3))
@@ -47,13 +48,18 @@ game_objs.append(Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 5, 100, 75, board_w
 game_objs.append(Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window).set_text("9").set_size(40).set_action(difficulty_choose, 9))
 game_objs.append(Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window).set_text("10").set_size(40).set_action(difficulty_choose, 10))
 
+game_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 2, "", board_window).set_colors(YELLOW).set_size(50).set_id("qPoser").has_background(1, PURPLE).set_max_pline(26))
+
 def start(players_list):
     """Démarrer le plateau"""
     stay = 1
+    turn_num = 0
     while stay:
         pygame.display.update()
 
         board_window.blit(bg, (0, 0))
+
+        player_turn = players_list[turn_num % len(players_list)]
 
         for dysp_obj in game_objs:
             dysp_obj.show()
@@ -367,4 +373,4 @@ def start_online():
 # else:
 #     start_local()
 
-start([])
+start(["nifvivre", "nifvivre"])

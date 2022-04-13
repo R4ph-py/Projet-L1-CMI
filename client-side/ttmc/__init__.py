@@ -55,6 +55,7 @@ class Text:
         self.id = None
         self.has_back = False
         self.back_color = WHITE
+        self.max_pline = 18
 
     def has_background(self, has_back, back_color = WHITE):
         """Set the background"""
@@ -65,6 +66,11 @@ class Text:
     def set_colors(self, text_color):
         """Setting color for the text"""
         self.text_color = text_color
+        return self
+
+    def set_max_pline(self, max_pline):
+        """Set the max of char per line"""
+        self.max_pline = max_pline
         return self
 
     def set_text(self, text):
@@ -90,10 +96,10 @@ class Text:
     def show(self):
         """Show text"""
         text_font = pygame.font.SysFont(self.font, self.size)
-        for i in range(0, len(self.text), 18):
-            message = text_font.render(self.text[i:i + 18], True, self.text_color)
+        for i in range(0, len(self.text), self.max_pline):
+            message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
 
-            coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // 18 * (message.get_height() + 20))
+            coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // self.max_pline * (message.get_height() + 20))
 
             if self.has_back:
                 rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
