@@ -34,13 +34,18 @@ BLACK = (0, 0, 0)
 # Autres couleurs
 WHITE = (255, 255, 255)
 
-FPS = 60
+FPS = 30
 
-BACKGROUND = pygame.image.load(f"{actual_path}/Background.jpg")
-BOARD = pygame.image.load(f"{actual_path}/Plateau.jpg")
-BOARD_FAT = pygame.image.load(f"{actual_path}/Plateau_fat.jpg")
+BACKGROUND = pygame.image.load(f"{actual_path}/background.jpg")
+BOARD = pygame.image.load(f"{actual_path}/plateau.jpg")
+BOARD_FAT = pygame.image.load(f"{actual_path}/plateau_fat.jpg")
 ICON = pygame.image.load(f"{actual_path}/icon.png")
 MENU_LOGO = pygame.image.load(f"{actual_path}/logo_accueil.png")
+
+RULES1 = pygame.image.load(f"{actual_path}/règles1.png")
+RULES2 = pygame.image.load(f"{actual_path}/règles2.png")
+RULES3 = pygame.image.load(f"{actual_path}/règles3.png")
+RULES4 = pygame.image.load(f"{actual_path}/règles4.png")
 
 class Text:
     """Text constructor"""
@@ -95,11 +100,24 @@ class Text:
 
     def show(self):
         """Show text"""
-        text_font = pygame.font.SysFont(self.font, self.size)
-        for i in range(0, len(self.text), self.max_pline):
-            message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
+        if self.max_pline != 0:
+            text_font = pygame.font.SysFont(self.font, self.size)
+            for i in range(0, len(self.text), self.max_pline):
+                message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
 
-            coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // self.max_pline * (message.get_height() + 20))
+                coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // self.max_pline * (message.get_height() + 20))
+
+                if self.has_back:
+                    rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
+                    pygame.draw.rect(self.window, self.back_color, rect, border_radius=10)
+
+                self.window.blit(message, coord)
+
+        else:
+            text_font = pygame.font.SysFont(self.font, self.size)
+            message = text_font.render(self.text, True, self.text_color)
+
+            coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2)
 
             if self.has_back:
                 rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
@@ -109,7 +127,39 @@ class Text:
 
     def obj_type(self):
         """Returns the object type"""
-        return "text", self.id
+        return "text"
+
+    def get_id(self):
+        """Returns the id"""
+        return self.id
+
+
+class Input(Text):
+    """Input constructor"""
+    def __init__(self, x, y, text, window, active = False):
+        super().__init__(x, y, text, window)
+        self.is_active = active
+
+    def actualise(self, event):
+        """Actualise the input"""
+        if self.is_active:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+
+                else:
+                    inp = event.unicode
+                    if inp.isalpha() or inp.isdigit() or inp == " ":
+                        self.text += inp
+
+    def set_active(self, active):
+        """Set the active state"""
+        self.is_active = active
+        return self
+
+    def obj_type(self):
+        """Returns the object type"""
+        return "input"
 
 
 class Button:
@@ -126,10 +176,11 @@ class Button:
         self.text_color_hovered = PURPLE
         self.text = ""
         self.font = "Corbel"
+        self.size = 20
         self.func = None
         self.args = None
-        self.size = 20
         self.rect = None
+        self.id = None
         self.render_text()
 
     def set_colors(self, btn_color = None, btn_color_hovered = None, text_color = None, text_color_hovered = None):
@@ -215,6 +266,29 @@ class Button:
     def obj_type(self):
         """Returns the object type"""
         return "button"
+
+
+class Image:
+    """Image constructor"""
+    def __init__(self, x, y, image, window):
+        self.x = x
+        self.y = y
+        self.image = image
+        self.id = None
+        self.window = window
+
+    def show(self):
+        """Show button"""
+        self.window.blit(self.image, (self.x - image.get_width()/2, self.y  - image.get_height()/2))
+
+    def set_id(self, id_s):
+        """Set the id"""
+        self.id = id_s
+        return self
+
+    def obj_type(self):
+        """Returns the object type"""
+        return "image"
 
 
 class Map:

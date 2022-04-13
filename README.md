@@ -10,15 +10,18 @@
   * [x] Lancement multijoueur
   * [x] A propos
   * [x] Règles
+
 * [ ] Plateau :
   * [ ] Affichage :
     * [ ] Partie droite :
       * [x] Plateau scrollable
       * [ ] Déplacement des pions
+
     * [ ] Partie gauche :
       * [ ] Choix de difficulté
       * [ ] Questions
       * [ ] Réponses
+
 * [ ] Local
 * [ ] Multijoueur :
   * [ ] Serveur
