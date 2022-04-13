@@ -207,6 +207,11 @@ class Button:
         loc_mouse = pygame.mouse.get_pos()
         return self.rect.collidepoint(loc_mouse)
 
+    def set_id(self, id_s):
+        """Set the id"""
+        self.id = id_s
+        return self
+
     def obj_type(self):
         """Returns the object type"""
         return "button"
