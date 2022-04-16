@@ -62,6 +62,12 @@ class Text:
         self.has_back = 1
         self.back_color = PURPLE
         self.max_pline = 18
+        self.is_active = 0
+
+    def set_active(self, active):
+        """Set the active state"""
+        self.is_active = active
+        return self
 
     def has_background(self, has_back, back_color = PURPLE):
         """Set the background"""
@@ -122,33 +128,33 @@ class Text:
 
     def event(self, event):
         """Event"""
-        pass
 
     def show(self):
         """Show text"""
-        text_font = pygame.font.SysFont(self.font, self.size)
-        if self.max_pline != 0:
-            for i in range(0, len(self.text), self.max_pline):
-                message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
+        if self.is_active:
+            text_font = pygame.font.SysFont(self.font, self.size)
+            if self.max_pline != 0:
+                for i in range(0, len(self.text), self.max_pline):
+                    message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
 
-                coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // self.max_pline * (message.get_height() + 20))
+                    coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // self.max_pline * (message.get_height() + 20))
+
+                    if self.has_back:
+                        rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
+                        pygame.draw.rect(self.window, self.back_color, rect, border_radius=10)
+
+                    self.window.blit(message, coord)
+
+            else:
+                message = text_font.render(self.text, True, self.text_color)
+
+                coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2)
 
                 if self.has_back:
                     rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
                     pygame.draw.rect(self.window, self.back_color, rect, border_radius=10)
 
                 self.window.blit(message, coord)
-
-        else:
-            message = text_font.render(self.text, True, self.text_color)
-
-            coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2)
-
-            if self.has_back:
-                rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
-                pygame.draw.rect(self.window, self.back_color, rect, border_radius=10)
-
-            self.window.blit(message, coord)
 
     def obj_type(self):
         """Returns the object type"""
@@ -161,9 +167,8 @@ class Text:
 
 class Input(Text):
     """Input constructor"""
-    def __init__(self, x, y, window, active = False):
+    def __init__(self, x, y, window):
         super().__init__(x, y, "", window)
-        self.is_active = active
         self.type = "anw"
         self.fun = None
         self.args = None
@@ -173,11 +178,6 @@ class Input(Text):
     def get_text(self):
         """Returns the text"""
         return self.text
-
-    def set_active(self, active):
-        """Set the active state"""
-        self.is_active = active
-        return self
 
     def set_action(self, action, *args):
         """Set the action"""
@@ -191,9 +191,6 @@ class Input(Text):
 
     def set_itype(self, type_s):
         """Set the type"""
-        if any(letter not in "anw" for letter in type_s):
-            raise ValueError("Le type doit être une chaîne contenant les caractères suivant \"a\" (alpha) et/ou \"n\" (numérique) et/ou \"w\" (whitespace)")
-
         self.type = type_s
         return self
 
@@ -218,15 +215,12 @@ class Input(Text):
                     if (("a" in self.type and inp.isalpha()) or ("n" in self.type and inp.isdigit()) or ("w" in self.type and inp == " ")) and len(self.text) < self.max_pline:
                         self.text += inp
 
-                    if self.max_num != -1 and self.type == "n" and int(self.text) > self.max_num:
-                        self.text = str(self.max_num)
+                    if self.text != "":
+                        if self.max_num != -1 and self.type == "n" and int(self.text) > self.max_num:
+                            self.text = str(self.max_num)
 
-                    if self.min_num != -1 and self.type == "n" and int(self.text) < self.min_num:
-                        self.text = str(self.min_num)
-
-    def show(self):
-        if self.is_active:
-            super().show()
+                        if self.min_num != -1 and self.type == "n" and int(self.text) < self.min_num:
+                            self.text = str(self.min_num)
 
     def obj_type(self):
         """Returns the object type"""
@@ -252,6 +246,7 @@ class Button:
         self.args = None
         self.rect = None
         self.id = None
+        self.is_active = 0
         self.render_text()
 
     def set_colors(self, btn_color = None, btn_color_hovered = None, text_color = None, text_color_hovered = None):
@@ -283,6 +278,11 @@ class Button:
     def set_size(self, size):
         """Set font size for the text"""
         self.size = size
+        return self
+
+    def set_active(self, active):
+        """Set active state"""
+        self.is_active = active
         return self
 
     def set_action(self, func, *args):
@@ -317,18 +317,17 @@ class Button:
 
     def show(self):
         """Show button"""
+        if self.is_active:
+            collide = self.collide_mouse()
+            message = self.render_text(collide)
 
-        collide = self.collide_mouse()
+            if collide:
+                pygame.draw.rect(self.window, self.btn_color_hovered, self.rect, border_radius = 30)
 
-        message = self.render_text(collide)
+            else:
+                pygame.draw.rect(self.window, self.btn_color, self.rect, border_radius = 30)
 
-        if collide:
-            pygame.draw.rect(self.window, self.btn_color_hovered, self.rect, border_radius = 30)
-
-        else:
-            pygame.draw.rect(self.window, self.btn_color, self.rect, border_radius = 30)
-
-        self.window.blit(message, (self.x - message.get_width()/2, self.y - message.get_height()/2))
+            self.window.blit(message, (self.x - message.get_width()/2, self.y - message.get_height()/2))
 
     def collide_mouse(self):
         """Check if mouse is over the button"""
@@ -397,7 +396,6 @@ class Map:
 
         self.piece_radius = 0.05 * self.big_board.get_width()
         self.pieces_list = {}
-        self.add_piece("p1")
 
     def add_piece(self, player_name):
         """Add piece to the map"""
@@ -409,6 +407,10 @@ class Map:
         self.pieces_list[player_name]["pos"] += case_num
         if self.pieces_list[player_name]["pos"] > 40:
             self.pieces_list[player_name]["pos"] = 41
+
+    def get_piece_info(self, player_name):
+        """Return info of a piece"""
+        return self.pieces_list[player_name]
 
     def scroll(self):
         """Scrolling function for the map"""
@@ -486,3 +488,7 @@ MATRICE_COORD_CASES = [(0.9, 0.94), (0.75, 0.94), (0.63, 0.92), (0.53, 0.86),
                        (0.8, 0.25), (0.65, 0.25), (0.48, 0.25), (0.32, 0.25),
                        (0.15, 0.25), (0.08, 0.17), (0.17, 0.09), (0.32, 0.07),
                        (0.47, 0.12)]
+
+POSSIBLE_TYPES = ["imp", "mat", "sco", "cvp", "cha", "pla", "csp", "win"]
+CASES_TYPES = [0, 1, 2, 3, 0, 4, 1, 2, 5, 6, 3, 5, 2, 0, 1, 4, 2, 5, 6, 1, 0,
+               2, 5, 0, 5, 1, 3, 4, 2, 5, 0, 1, 2, 5, 2, 1, 6, 0, 4, 1, 7]

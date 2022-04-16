@@ -32,49 +32,50 @@ text_font_small = pygame.font.SysFont("Corbel", 50)
 TO_BOARD = "{\"blank\": \"blank\"}"
 TO_PROCESS = "{\"blank\": \"blank\"}"
 
-def coms(to_send, to_who):
-    """Communication between board and manager process"""
-    global TO_BOARD
+def coms(to_send):
+    """Communication board and manager process"""
     global TO_PROCESS
-    if to_who == "board":
-        TO_BOARD = to_send
-
-    if to_who == "process":
-        TO_PROCESS = to_send
+    TO_PROCESS = to_send
 
 
-num_p_objs = [Text(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, "Entrer le nombre de joueurs :", board_window).set_size(60).set_max_pline(0)]
-num_p_objs.append(Input(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + num_p_objs[0].get_height(), board_window).set_size(50).set_itype("n").set_id("num p").set_action(coms, "process").set_mm_num(4, 2))
+num_p_objs = {0: Text(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, "Entrer le nombre de joueurs :", board_window).set_size(60).set_max_pline(0).set_active(1)}
+num_p_objs[1] = Input(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + num_p_objs[0].get_height(), board_window).set_size(50).set_itype("n").set_id("num p").set_action(coms).set_mm_num(4, 2).set_active(1)
 
-p_name_objs = [Text(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, "Entrer le nom du joueur X :", board_window).set_size(60).set_max_pline(0)]
-p_name_objs.append(Input(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + p_name_objs[0].get_height(), board_window).set_size(50).set_itype("a").set_id("name p").set_action(coms, "process").set_mm_num(7))
+p_name_objs = {0: Text(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, "Entrer le nom du joueur X :", board_window).set_size(60).set_max_pline(0).set_active(1)}
+p_name_objs[1] = Input(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + p_name_objs[0].get_height(), board_window).set_size(50).set_itype("a").set_id("name p").set_action(coms).set_mm_num(7).set_active(1)
 
 def difficulty_choose(diff):
     """Difficulté choisie"""
     return diff
 
-game_objs = [Map(board_window)]
-map_x = game_objs[0].bmap_x
+game_objs = {"map": Map(board_window)}
+map_x = game_objs["map"].bmap_x
+map_w = game_objs["map"].big_board.get_width()
 
-game_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 7, "Tour de 1234567", board_window).set_size(100).set_id("tour"))
+game_objs["tour"] = Text(map_x // 2, SCREEN_HEIGHT // 7, "Tour de 1234567", board_window).set_size(100).set_id("tour").set_active(1)
+game_objs["j2_t"] = Text(map_x + map_w + (SCREEN_WIDTH - (map_x + map_w)) // 2, SCREEN_HEIGHT // 3*2, "Joueur 2", board_window).set_size(45).set_id("p2").set_colors(BLUE).has_background(1, WHITE).set_active(1)
+j2_t_height = game_objs["j2_t"].get_height()
+game_objs["j1_t"] = Text(map_x + map_w + (SCREEN_WIDTH - (map_x + map_w)) // 2, SCREEN_HEIGHT // 3*2 - j2_t_height - 20, "", board_window).set_size(45).set_id("p1").set_colors(RED).has_background(1, WHITE).set_active(1)
+game_objs["j3_t"] = Text(map_x + map_w + (SCREEN_WIDTH - (map_x + map_w)) // 2, SCREEN_HEIGHT // 3*2 + j2_t_height + 20, "", board_window).set_size(45).set_id("p3").set_colors(GREEN).has_background(1, WHITE).set_active(1)
+game_objs["j4_t"] = Text(map_x + map_w + (SCREEN_WIDTH - (map_x + map_w)) // 2, SCREEN_HEIGHT // 3*2 + 2 * j2_t_height + 40, "", board_window).set_size(45).set_id("p4").set_colors(ORANGE).has_background(1, WHITE).set_active(1)
 
-question_objs   =   [Text(map_x // 2, SCREEN_HEIGHT // 3, "Tu te mets combien en X ?", board_window).set_size(60).set_id("ttmcQ").set_max_pline(0)]
-question_objs.append(Text(map_x // 2, SCREEN_HEIGHT // 2, "", board_window).set_size(50).set_id("qPoser").set_max_pline(26))
-question_objs.append(Input(map_x // 2, SCREEN_HEIGHT // 3 * 2, board_window))
+game_objs["ttmc_q"] = Text(map_x // 2, SCREEN_HEIGHT // 3, "Tu te mets combien en X ?", board_window).set_size(60).set_id("ttmcQ").set_max_pline(0)
+game_objs["q_oser"] = Text(map_x // 2, SCREEN_HEIGHT // 2, "", board_window).set_size(50).set_id("qPoser").set_max_pline(26)
+game_objs["asw_inp"] = Input(map_x // 2, SCREEN_HEIGHT // 3 * 2, board_window).set_size(45).set_id("aswInp").set_max_pline(30).set_action(coms)
 
-difficulty_btns   =   [Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)]
-difficulty_btns.append(Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window))
-difficulty_btns.append(Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window))
+game_objs["btn_d0"] = Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)
+game_objs["btn_d1"] = Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)
+game_objs["btn_d2"] = Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)
+game_objs["btn_d3"] = Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)
+game_objs["btn_d4"] = Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)
+game_objs["btn_d5"] = Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window)
+game_objs["btn_d6"] = Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window)
+game_objs["btn_d7"] = Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window)
+game_objs["btn_d8"] = Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window)
+game_objs["btn_d9"] = Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window)
 
 for i in range(10):
-    difficulty_btns[i].set_text(f"{i}").set_size(40).set_action(difficulty_choose, i).set_id(f"difficulty_{i}")
+    game_objs[f"btn_d{i}"].set_text(f"{i + 1}").set_size(40).set_action(difficulty_choose, i).set_id(f"btnD{i}")
 
 
 def start_local():
@@ -123,15 +124,17 @@ def start_local():
 
     TO_BOARD = "{\"action\": \"start\", \"players\": \"" + str(players_list) + "\"}"
 
+    time.sleep(1)
+
     while 1:
-        v_read = json.loads(TO_BOARD)
-        if "action" in v_read:
-            if v_read["action"] == "start":
-                break
+        TO_BOARD = "{\"turn\": \"0\"}"
 
 
 def start(is_online = 0):
     """Démarrer le plateau"""
+    global TO_BOARD
+    global TO_PROCESS
+
     if is_online == 1:
         # _thread.start_new_thread(start_online, ())
         pass
@@ -142,6 +145,7 @@ def start(is_online = 0):
     stay = 1
     started = 0
     last_read = ""
+    turn_of = ""
 
     while stay:
         pygame.display.update()
@@ -152,10 +156,10 @@ def start(is_online = 0):
 
         try:
             if not last_read == v_read:
-                if "action" in v_read:
-                    if v_read["action"] == "ask":
+                if not started:
+                    if "action" in v_read:
+                        if v_read["action"] == "ask":
 
-                        if not started:
                             if "num p" in v_read:
                                 objs = num_p_objs
                                 objs[1].set_active(1)
@@ -166,23 +170,35 @@ def start(is_online = 0):
                                 objs[0].set_text(f"Entrer le nom du joueur {num} :")
                                 objs[1].set_active(1)
 
-                    elif v_read["action"] == "start":
-                        started = 1
-                        players_list = v_read["players"]
-                        players_list = players_list.replace("[", "").replace("]", "").replace("\'", "").split(", ")
-                        objs = game_objs
+                        elif v_read["action"] == "start":
+                            started = 1
+                            players_list = v_read["players"]
+                            players_list = players_list.replace("[", "").replace("]", "").replace("\'", "").split(", ")
+                            for j in range(len(players_list)):
+                                game_objs[f"j{j+1}_t"].set_text(players_list[j])
+
+                            objs = game_objs
+
+                else:
 
                     if "turn" in v_read:
-                        objs = game_objs
-                        objs[1].set_text(f"Tour de {players_list[v_read['turn']%len(players_list)]}")
+                        turn_of = players_list[int(v_read["turn"])%len(players_list)]
+                        objs["tour"].set_text(f"Tour de {turn_of}")
+
+                    if "action" in v_read:
+                        if v_read["action"] == "turn start":
+                            piece = objs["map"].get_piece_info(turn_of)
+                            case_num = piece["pos"]
+                            case_type = POSSIBLE_TYPES[CASES_TYPES[case_num]]
+                            TO_PROCESS = "{\"question\": \"" + case_type + "\"}"
 
                 last_read = v_read
 
         except ValueError:
             pass
 
-        for obj in objs:
-            if obj.obj_type() == "map":
+        for name, obj in objs.items():
+            if name == "map":
                 obj.scroll()
 
             obj.show()
@@ -194,7 +210,7 @@ def start(is_online = 0):
             sys.exit()
 
         for event in pygame.event.get():
-            for obj in objs:
+            for _, obj in objs.items():
                 obj.event(event)
 
             if event.type == QUIT:
