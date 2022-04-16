@@ -134,16 +134,34 @@ class Text:
         if self.is_active:
             text_font = pygame.font.SysFont(self.font, self.size)
             if self.max_pline != 0:
-                for i in range(0, len(self.text), self.max_pline):
-                    message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
+                text = self.text
+                lines = 0
+                while len(text) > 0:
+                    if len(text) > self.max_pline:
+                        text_part = text[:self.max_pline]
+                        if not text_part.endswith(" "):
+                            text_part = text_part[:text_part.rfind(" ")]
 
-                    coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + i // self.max_pline * (message.get_height() + 20))
+                        if text_part.rfind(" ") == -1:
+                            text_part = text_part[:self.max_pline]
+
+                        text = text[len(text_part):]
+
+                    else:
+                        text_part = text
+                        text = ""
+
+                    message = text_font.render(text_part, True, self.text_color)
+
+                    coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2 + lines * (message.get_height() + 20))
 
                     if self.has_back:
                         rect = pygame.Rect(coord[0] - 10, coord[1] - 10, message.get_width() + 20, message.get_height() + 20)
                         pygame.draw.rect(self.window, self.back_color, rect, border_radius=10)
 
                     self.window.blit(message, coord)
+
+                    lines += 1
 
             else:
                 message = text_font.render(self.text, True, self.text_color)
@@ -174,6 +192,12 @@ class Input(Text):
         self.args = None
         self.max_num = -1
         self.min_num = -1
+        self.is_inp_active = 1
+
+    def set_active_inp(self, active):
+        """Set the active state of the input"""
+        self.is_inp_active = active
+        return self
 
     def get_text(self):
         """Returns the text"""
@@ -202,7 +226,7 @@ class Input(Text):
 
     def event(self, event):
         """Handle event"""
-        if self.is_active:
+        if self.is_active and self.is_inp_active:
             if event.type == pygame.KEYDOWN:
                 if event.key == K_RETURN or event.key == K_KP_ENTER:
                     self.action()
@@ -212,7 +236,7 @@ class Input(Text):
 
                 else:
                     inp = event.unicode
-                    if (("a" in self.type and inp.isalpha()) or ("n" in self.type and inp.isdigit()) or ("w" in self.type and inp == " ")) and len(self.text) < self.max_pline:
+                    if (("a" in self.type and inp.isalpha()) or ("n" in self.type and inp.isdigit()) or ("w" in self.type and inp == " ")):
                         self.text += inp
 
                     if self.text != "":
@@ -221,6 +245,9 @@ class Input(Text):
 
                         if self.min_num != -1 and self.type == "n" and int(self.text) < self.min_num:
                             self.text = str(self.min_num)
+
+                        if self.max_num != -1 and "a" in self.type and len(self.text) > self.max_num:
+                            self.text = self.text[:self.max_num]
 
     def obj_type(self):
         """Returns the object type"""
@@ -311,9 +338,10 @@ class Button:
 
     def event(self, event):
         """Event of the button"""
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1 and self.collide_mouse():
-                self.action()
+        if self.is_active:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and self.collide_mouse():
+                    self.action()
 
     def show(self):
         """Show button"""
@@ -405,8 +433,8 @@ class Map:
     def move_piece(self, player_name, case_num):
         """Move piece on the map"""
         self.pieces_list[player_name]["pos"] += case_num
-        if self.pieces_list[player_name]["pos"] > 40:
-            self.pieces_list[player_name]["pos"] = 41
+        if self.pieces_list[player_name]["pos"] > 39:
+            self.pieces_list[player_name]["pos"] = 40
 
     def get_piece_info(self, player_name):
         """Return info of a piece"""
