@@ -39,37 +39,37 @@ def quit_menu():
 
 def back_to_main():
     """Back button action"""
-    global actual_menu
-    actual_menu = 0
+    global ACT_MENU
+    ACT_MENU = 0
 
 
 def about_btn():
     """About button action"""
-    global actual_menu
-    actual_menu = 1
+    global ACT_MENU
+    ACT_MENU = 1
 
 
 def rules_btn():
     """Rules button action"""
-    global actual_menu
-    actual_menu = 2
+    global ACT_MENU
+    ACT_MENU = 2
 
 
 def rules2_btn():
     """Rules button action"""
-    global actual_menu
-    actual_menu = 3
+    global ACT_MENU
+    ACT_MENU = 3
 
 
 def rules3_btn():
     """Rules button action"""
-    global actual_menu
-    actual_menu = 4
+    global ACT_MENU
+    ACT_MENU = 4
 
 
 def start():
     """Démarrer le menu"""
-    global actual_menu
+    global ACT_MENU
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     pygame.init()
@@ -111,21 +111,21 @@ def start():
 
     rules_menu1_objs = [back_button]
     rules_menu1_objs.append(Text(WINDOW_WIDTH/2, 280, "1) Le jeu TTMC :", window).set_size(35).set_max_pline(0).has_background(1))
-    rules_menu1_objs.append(Image(WINDOW_WIDTH/2, 370, "Capture 1.jpg", window))
+    rules_menu1_objs.append(Image(WINDOW_WIDTH/2, 370, RULES1, window))
     rules_menu1_objs.append(Text(WINDOW_WIDTH/2, 460, "2) Le but du jeu  :", window).set_size(35).set_max_pline(0).has_background(1))
-    rules_menu1_objs.append(Image(WINDOW_WIDTH/2, 560, "Capture 2.jpg", window))
+    rules_menu1_objs.append(Image(WINDOW_WIDTH/2, 560, RULES2, window))
     rules_menu1_objs.append(Button(610, 655, 200, 70, window).set_text("Page Suivante").set_action(rules2_btn).set_size(28))
 
     rules_menu2_objs = [back_button]
     rules_menu2_objs.append(Button(130, 655, 200, 70, window).set_text("Page Precedente").set_action(rules_btn).set_size(28))
     rules_menu2_objs.append(Text(WINDOW_WIDTH/2, 300, "3) Deroulement du jeu :", window).set_size(35).set_max_pline(0).has_background(1))
-    rules_menu2_objs.append(Image(WINDOW_WIDTH/2, 450, "Capture 3.jpg", window))
+    rules_menu2_objs.append(Image(WINDOW_WIDTH/2, 450, RULES3, window))
     rules_menu2_objs.append(Button(610, 655, 200, 70, window).set_text("Page Suivante").set_action(rules3_btn).set_size(28))
 
     rules_menu3_objs =[back_button]
     rules_menu3_objs.append(Button(130, 655, 200, 70, window).set_text("Page Precedente").set_action(rules2_btn).set_size(28))
     rules_menu3_objs.append(Text(WINDOW_WIDTH/2, 290, "4) Evenement spéciaux et fin du jeu :", window).set_size(35).set_max_pline(0).has_background(1))
-    rules_menu3_objs.append(Image(WINDOW_WIDTH/2, 460, "Capture 4.jpg", window))
+    rules_menu3_objs.append(Image(WINDOW_WIDTH/2, 460, RULES4, window))
 
     objects = [main_menu_objs, about_objs, rules_menu1_objs, rules_menu2_objs, rules_menu3_objs]
     stay = 1
@@ -135,7 +135,7 @@ def start():
         window.blit(bg, (0, 0))
         window.blit(MENU_LOGO, (WINDOW_WIDTH//2 - MENU_LOGO.get_width()//2, 10))
 
-        for dysp_obj in objects[actual_menu]:
+        for dysp_obj in objects[ACT_MENU]:
             dysp_obj.show()
 
         for event in pygame.event.get():
@@ -146,13 +146,13 @@ def start():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    for dysp_obj in objects[actual_menu]:
+                    for dysp_obj in objects[ACT_MENU]:
                         if dysp_obj.obj_type() == "button" and dysp_obj.collide_mouse():
                             dysp_obj.action()
 
         clock.tick(FPS)
 
-actual_menu = 0 # 0 = main menu, 1 = about menu, 2 / 3 / 4 = rules menu
+ACT_MENU = 0 # 0 = main menu, 1 = about menu, 2 / 3 / 4 = rules menu
 
 if __name__ == "__main__":
     start()

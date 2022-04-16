@@ -1,5 +1,6 @@
 """init"""
 import os
+from pygame.locals import *
 import pygame
 from screeninfo import get_monitors
 
@@ -34,7 +35,7 @@ BLACK = (0, 0, 0)
 # Autres couleurs
 WHITE = (255, 255, 255)
 
-FPS = 30
+FPS = 60
 
 BACKGROUND = pygame.image.load(f"{actual_path}/background.jpg")
 BOARD = pygame.image.load(f"{actual_path}/plateau.jpg")
@@ -42,10 +43,10 @@ BOARD_FAT = pygame.image.load(f"{actual_path}/plateau_fat.jpg")
 ICON = pygame.image.load(f"{actual_path}/icon.png")
 MENU_LOGO = pygame.image.load(f"{actual_path}/logo_accueil.png")
 
-RULES1 = pygame.image.load(f"{actual_path}/règles1.png")
-RULES2 = pygame.image.load(f"{actual_path}/règles2.png")
-RULES3 = pygame.image.load(f"{actual_path}/règles3.png")
-RULES4 = pygame.image.load(f"{actual_path}/règles4.png")
+RULES1 = pygame.image.load(f"{actual_path}/règles1.jpg")
+RULES2 = pygame.image.load(f"{actual_path}/règles2.jpg")
+RULES3 = pygame.image.load(f"{actual_path}/règles3.jpg")
+RULES4 = pygame.image.load(f"{actual_path}/règles4.jpg")
 
 class Text:
     """Text constructor"""
@@ -56,13 +57,13 @@ class Text:
         self.window = window
         self.font = "Corbel"
         self.size = 20
-        self.text_color = BLACK
+        self.text_color = YELLOW
         self.id = None
-        self.has_back = False
-        self.back_color = WHITE
+        self.has_back = 1
+        self.back_color = PURPLE
         self.max_pline = 18
 
-    def has_background(self, has_back, back_color = WHITE):
+    def has_background(self, has_back, back_color = PURPLE):
         """Set the background"""
         self.has_back = has_back
         self.back_color = back_color
@@ -98,10 +99,35 @@ class Text:
         self.id = id_s
         return self
 
+    def get_height(self):
+        """Render text"""
+        text_font = pygame.font.SysFont(self.font, self.size)
+        if self.max_pline != 0:
+            height = 0
+            for i in range(0, len(self.text), self.max_pline):
+                message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
+
+                height += message.get_height()
+                if self.has_back:
+                    height += 20
+
+        else:
+            message = text_font.render(self.text, True, self.text_color)
+
+            height = message.get_height()
+            if self.has_back:
+                height += 20
+
+        return height
+
+    def event(self, event):
+        """Event"""
+        pass
+
     def show(self):
         """Show text"""
+        text_font = pygame.font.SysFont(self.font, self.size)
         if self.max_pline != 0:
-            text_font = pygame.font.SysFont(self.font, self.size)
             for i in range(0, len(self.text), self.max_pline):
                 message = text_font.render(self.text[i:i + self.max_pline], True, self.text_color)
 
@@ -114,7 +140,6 @@ class Text:
                 self.window.blit(message, coord)
 
         else:
-            text_font = pygame.font.SysFont(self.font, self.size)
             message = text_font.render(self.text, True, self.text_color)
 
             coord = (self.x - message.get_width() // 2, self.y - message.get_height() // 2)
@@ -136,26 +161,72 @@ class Text:
 
 class Input(Text):
     """Input constructor"""
-    def __init__(self, x, y, text, window, active = False):
-        super().__init__(x, y, text, window)
+    def __init__(self, x, y, window, active = False):
+        super().__init__(x, y, "", window)
         self.is_active = active
+        self.type = "anw"
+        self.fun = None
+        self.args = None
+        self.max_num = -1
+        self.min_num = -1
 
-    def actualise(self, event):
-        """Actualise the input"""
-        if self.is_active:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_BACKSPACE:
-                    self.text = self.text[:-1]
-
-                else:
-                    inp = event.unicode
-                    if inp.isalpha() or inp.isdigit() or inp == " ":
-                        self.text += inp
+    def get_text(self):
+        """Returns the text"""
+        return self.text
 
     def set_active(self, active):
         """Set the active state"""
         self.is_active = active
         return self
+
+    def set_action(self, action, *args):
+        """Set the action"""
+        self.fun = action
+        self.args = args
+        return self
+
+    def action(self):
+        """Call the action"""
+        self.fun("{\"done\": \"1\", \"" + self.id + "\": \"" + self.text + "\"}", *self.args)
+
+    def set_itype(self, type_s):
+        """Set the type"""
+        if any(letter not in "anw" for letter in type_s):
+            raise ValueError("Le type doit être une chaîne contenant les caractères suivant \"a\" (alpha) et/ou \"n\" (numérique) et/ou \"w\" (whitespace)")
+
+        self.type = type_s
+        return self
+
+    def set_mm_num(self, max_num = -1, min_num = -1):
+        """Set the max number"""
+        self.max_num = max_num
+        self.min_num = min_num
+        return self
+
+    def event(self, event):
+        """Handle event"""
+        if self.is_active:
+            if event.type == pygame.KEYDOWN:
+                if event.key == K_RETURN or event.key == K_KP_ENTER:
+                    self.action()
+
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+
+                else:
+                    inp = event.unicode
+                    if (("a" in self.type and inp.isalpha()) or ("n" in self.type and inp.isdigit()) or ("w" in self.type and inp == " ")) and len(self.text) < self.max_pline:
+                        self.text += inp
+
+                    if self.max_num != -1 and self.type == "n" and int(self.text) > self.max_num:
+                        self.text = str(self.max_num)
+
+                    if self.min_num != -1 and self.type == "n" and int(self.text) < self.min_num:
+                        self.text = str(self.min_num)
+
+    def show(self):
+        if self.is_active:
+            super().show()
 
     def obj_type(self):
         """Returns the object type"""
@@ -238,6 +309,12 @@ class Button:
 
         return message
 
+    def event(self, event):
+        """Event of the button"""
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and self.collide_mouse():
+                self.action()
+
     def show(self):
         """Show button"""
 
@@ -279,7 +356,7 @@ class Image:
 
     def show(self):
         """Show button"""
-        self.window.blit(self.image, (self.x - image.get_width()/2, self.y  - image.get_height()/2))
+        self.window.blit(self.image, (self.x - self.image.get_width()/2, self.y  - self.image.get_height()/2))
 
     def set_id(self, id_s):
         """Set the id"""
@@ -316,24 +393,28 @@ class Map:
         self.scrolli.fill(BLACK)
 
         self.last_mouse_y = 0
-        self.s_is_clicked = False
+        self.s_is_clicked = 0
 
-    def scroll(self, button = 0):
+        self.piece_radius = 0.05 * self.big_board.get_width()
+        self.pieces_list = {}
+        self.add_piece("p1")
+
+    def add_piece(self, player_name):
+        """Add piece to the map"""
+        colors_list = [RED, BLUE, GREEN, ORANGE]
+        self.pieces_list[player_name] = {"pos": 0, "color": colors_list[len(self.pieces_list)]}
+
+    def move_piece(self, player_name, case_num):
+        """Move piece on the map"""
+        self.pieces_list[player_name]["pos"] += case_num
+        if self.pieces_list[player_name]["pos"] > 40:
+            self.pieces_list[player_name]["pos"] = 41
+
+    def scroll(self):
         """Scrolling function for the map"""
-        if self.lmap_collide_mouse() or self.bmap_collide_mouse():
-            if button == 4:
-                self.bmap_y += 50
-
-            elif button == 5 and self.bmap_y > self.bmap_min_y:
-                self.bmap_y -= 50
-
         if self.scrolli_collide_mouse():
             if self.s_is_clicked:
                 self.bmap_y += (self.last_mouse_y - pygame.mouse.get_pos()[1]) * (1 / self.lob_ratio)
-                self.last_mouse_y = pygame.mouse.get_pos()[1]
-
-            elif button == 1:
-                self.s_is_clicked = True
                 self.last_mouse_y = pygame.mouse.get_pos()[1]
 
         if self.bmap_y > self.bmap_max_y:
@@ -342,19 +423,36 @@ class Map:
         elif self.bmap_y < self.bmap_min_y:
             self.bmap_y = self.bmap_min_y
 
-    def released_mouse(self):
-        """Mouse released"""
-        self.s_is_clicked = False
+    def event(self,event):
+        """Event of the map"""
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if self.scrolli_collide_mouse():
+                    self.s_is_clicked = 1
+                    self.last_mouse_y = pygame.mouse.get_pos()[1]
+
+            if self.lmap_collide_mouse() or self.bmap_collide_mouse():
+                if event.button == 4:
+                    self.bmap_y += 50
+
+                elif event.button == 5:
+                    self.bmap_y -= 50
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                self.s_is_clicked = 0
 
     def show(self):
         """Show map"""
         self.window.blit(self.little_board, (self.lmap_x, self.lmap_y))
         self.window.blit(self.scrolli, (self.lmap_x, 20 + (self.bmap_max_y - self.bmap_y) * self.lob_ratio))
         self.window.blit(self.big_board, (self.bmap_x, self.bmap_y))
-        return self
 
-    def add_piece(self, player_name):
-        """Add piece to the map"""
+        for player_name in self.pieces_list:
+            pos = MATRICE_COORD_CASES[self.pieces_list[player_name]["pos"]]
+            pos_x = pos[0] * self.big_board.get_width() + self.bmap_x
+            pos_y = pos[1] * self.big_board.get_height() + self.bmap_y
+            pygame.draw.circle(self.window, self.pieces_list[player_name]["color"], (pos_x, pos_y), self.piece_radius)
 
     def lmap_collide_mouse(self):
         """Check if mouse is over the little map"""
@@ -375,3 +473,16 @@ class Map:
     def obj_type(self):
         """Returns the object type"""
         return "map"
+
+
+MATRICE_COORD_CASES = [(0.9, 0.94), (0.75, 0.94), (0.63, 0.92), (0.53, 0.86),
+                       (0.38, 0.87), (0.28, 0.94), (0.13, 0.92), (0.1, 0.83),
+                       (0.1, 0.72), (0.2, 0.64), (0.35, 0.68), (0.43, 0.74),
+                       (0.57, 0.75), (0.63, 0.68), (0.77, 0.66), (0.87, 0.63),
+                       (0.87, 0.54), (0.78, 0.5), (0.67, 0.53), (0.55, 0.61),
+                       (0.48, 0.55), (0.4, 0.5), (0.28, 0.54), (0.15, 0.56),
+                       (0.1, 0.49), (0.12, 0.4), (0.23, 0.34), (0.37, 0.37),
+                       (0.5, 0.43), (0.62, 0.39), (0.75, 0.34), (0.88, 0.32),
+                       (0.8, 0.25), (0.65, 0.25), (0.48, 0.25), (0.32, 0.25),
+                       (0.15, 0.25), (0.08, 0.17), (0.17, 0.09), (0.32, 0.07),
+                       (0.47, 0.12)]
