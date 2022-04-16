@@ -11,8 +11,8 @@
   * [x] A propos
   * [x] Règles
 
-* [x] Plateau :
-  * [x] Affichage :
+* [ ] Plateau :
+  * [ ] Affichage :
     * [x] Partie droite :
       * [x] Plateau scrollable
       * [x] Déplacement des pions
