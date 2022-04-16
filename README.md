@@ -11,18 +11,22 @@
   * [x] A propos
   * [x] Règles
 
-* [ ] Plateau :
-  * [ ] Affichage :
-    * [ ] Partie droite :
+* [x] Plateau :
+  * [x] Affichage :
+    * [x] Partie droite :
       * [x] Plateau scrollable
-      * [ ] Déplacement des pions
+      * [x] Déplacement des pions
 
     * [ ] Partie gauche :
-      * [ ] Choix de difficulté
+      * [x] Choix de difficulté
       * [ ] Questions
       * [ ] Réponses
 
-* [ ] Local
-* [ ] Multijoueur :
-  * [ ] Serveur
-  * [ ] Client
+* [x] Local
+  * [x] Choix du nombre de joueurs
+  * [x] Choix du joueur
+  * [x] Lancement de la partie
+
+* [ ] ~~Multijoueur~~ :
+  * [ ] ~~Serveur~~
+  * [ ] ~~Client~~
