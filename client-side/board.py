@@ -7,6 +7,7 @@ import socket
 import json
 import _thread
 import time
+import random
 from pygame.locals import *
 from ttmc import *
 
@@ -164,6 +165,7 @@ def start(is_online = 0):
     last_read = ""
     turn_of = ""
     turn = 0
+    animation = 0
 
     while stay:
         pygame.display.update()
@@ -198,87 +200,104 @@ def start(is_online = 0):
                         objs = game_objs
 
             else:
+                if animation:
+                    pass
 
-                if "turn" in v_read:
-                    turn = int(v_read["turn"])
-                    turn_of = players_list[turn%len(players_list)]
-                    objs["tour"].set_text(f"Tour de {turn_of}")
+                else:
 
-                    piece = objs["map"].get_piece_info(turn_of)
-                    case_num = piece["pos"]
-                    case_type = POSSIBLE_TYPES[CASES_TYPES[case_num]]
-                    card = {"category": "categorie", "10": {"question": "diff1q", "reponse": "diff1r"}, "2": {"question": "diff2q", "reponse": "diff2r"}} #séléctionner une carte aléatoire
-                    if case_type == "imp":
-                        pass
+                    if "turn" in v_read:
+                        turn = int(v_read["turn"])
+                        turn_of = players_list[turn%len(players_list)]
+                        objs["tour"].set_text(f"Tour de {turn_of}")
 
-                    elif case_type == "mat":
-                        pass
+                        piece = objs["map"].get_piece_info(turn_of)
+                        case_num = piece["pos"]
+                        case_type = POSSIBLE_TYPES[CASES_TYPES[case_num]]
 
-                    elif case_type == "sco":
-                        pass
+                        if case_type == "win":
+                            rand = random.randint(1, 20)
+                            quest = JSONDB["Final_questions"][str(rand)]
+                            resp = JSONDB["Final_reponses"]
+                            diff = rand
+                            objs["ttmc_q"].set_active(0)
+                            objs["q_poser"].set_text(quest).set_active(1)
+                            objs["asw_inp"].set_active(1)
 
-                    elif case_type == "cpv":
-                        pass
+                        elif case_type == "csp":
+                            objs["map"].move_piece(turn_of, 3)
+                            TO_BOARD = "{\"turn\": \"" + str(turn + 1) + "\"}"
 
-                    elif case_type == "cha":
-                        pass
+                        elif case_type == "cvp":
+                            objs["map"].move_piece(turn_of, -3)
+                            TO_BOARD = "{\"turn\": \"" + str(turn + 1) + "\"}"
 
-                    elif case_type == "pla":
-                        pass
+                        elif case_type == "cha":
+                            objs["map"].move_piece(turn_of, random.randint(-3, 3))
+                            TO_BOARD = "{\"turn\": \"" + str(turn + 1) + "\"}"
 
-                    elif case_type == "csp":
-                        pass
+                        else:
+                            if case_type == "imp":
+                                rand = random.randint(59, 88)
 
-                    elif case_type == "win":
-                        pass
+                            elif case_type == "mat":
+                                rand = random.randint(1, 20)
 
-                    category = card["category"]
-                    objs["ttmc_q"].set_text(f"Tu te mets combien en {category} ?").set_active(1)
-                    for j in range(10):
-                        objs[f"btn_d{j}"].set_active(1)
+                            elif case_type == "sco":
+                                rand = random.randint(21, 39)
 
-                if "difficulty" in v_read:
-                    diff = v_read["difficulty"]
-                    objs["ttmc_q"].set_text(f"Tu te mets {diff} en {category}")
-                    for j in range(10):
-                        objs[f"btn_d{j}"].set_active(0)
+                            elif case_type == "pla":
+                                rand = random.randint(40, 58)
 
-                    question = card[diff]["question"] #prendre la question correspondant à la difficulté sur la carte choisie
-                    objs["q_poser"].set_text(question).set_active(1)
-                    objs["asw_inp"].set_active(1)
+                            card = JSONDB["Questions"][str(rand)]
+                            resp = JSONDB["Reponses"][str(rand)]
 
-                if "asw_inp" in v_read:
-                    asw = v_read["asw_inp"]
-                    objs["asw_inp"].set_text(asw).set_active_inp(0)
-                    asw = card[diff]["reponse"]
-                    objs["r_asw"].set_text(f"Réponse : {asw}").set_active(1)
-                    objs["vote"].set_active(1)
-                    objs["vote_btn1"].set_active(1)
-                    objs["vote_btn2"].set_active(1)
+                            category = card[0]
+                            objs["ttmc_q"].set_text(f"Tu te mets combien en {category} ?").set_active(1)
+                            for j in range(10):
+                                objs[f"btn_d{j}"].set_active(1)
 
-                if "vote_btn1" in v_read:
-                    objs["q_poser"].set_text("").set_active(0)
-                    objs["asw_inp"].set_active_inp(1).set_active(0)
-                    objs["r_asw"].set_active(0)
-                    objs["vote"].set_active(0)
-                    objs["vote_btn1"].set_active(0)
-                    objs["vote_btn2"].set_active(0)
-                    if piece["pos"] == 40:
-                        objs = win_objs
-                        objs["win_t"].set_text(f"{turn_of} a gagné !")
+                    if "difficulty" in v_read:
+                        diff = v_read["difficulty"]
+                        objs["ttmc_q"].set_text(f"Tu te mets {diff} en {category}")
+                        for j in range(10):
+                            objs[f"btn_d{j}"].set_active(0)
 
-                    else:
-                        objs["map"].move_piece(turn_of, int(diff))
+                        question = card[int(diff)]
+                        objs["q_poser"].set_text(question).set_active(1)
+                        objs["asw_inp"].set_active(1)
+
+                    if "asw_inp" in v_read:
+                        asw = v_read["asw_inp"]
+                        objs["asw_inp"].set_text(asw).set_active_inp(0)
+                        asw = resp[int(diff)]
+                        objs["r_asw"].set_text(f"Réponse : {asw}").set_active(1)
+                        objs["vote"].set_active(1)
+                        objs["vote_btn1"].set_active(1)
+                        objs["vote_btn2"].set_active(1)
+
+                    if "vote_btn1" in v_read:
+                        objs["q_poser"].set_text("").set_active(0)
+                        objs["asw_inp"].set_active_inp(1).set_active(0)
+                        objs["r_asw"].set_active(0)
+                        objs["vote"].set_active(0)
+                        objs["vote_btn1"].set_active(0)
+                        objs["vote_btn2"].set_active(0)
+                        if piece["pos"] == 40:
+                            objs = win_objs
+                            objs["win_t"].set_text(f"{turn_of} a gagné !")
+
+                        else:
+                            objs["map"].move_piece(turn_of, int(diff))
+                            TO_BOARD = "{\"turn\": \"" + str(turn + 1) + "\"}"
+
+                    if "vote_btn2" in v_read:
+                        objs["q_poser"].set_text("").set_active(0)
+                        objs["asw_inp"].set_active_inp(1).set_active(0)
+                        objs["r_asw"].set_active(0)
+                        objs["vote"].set_active(0)
+                        objs["vote_btn1"].set_active(0)
+                        objs["vote_btn2"].set_active(0)
                         TO_BOARD = "{\"turn\": \"" + str(turn + 1) + "\"}"
-
-                if "vote_btn2" in v_read:
-                    objs["q_poser"].set_text("").set_active(0)
-                    objs["asw_inp"].set_active_inp(1).set_active(0)
-                    objs["r_asw"].set_active(0)
-                    objs["vote"].set_active(0)
-                    objs["vote_btn1"].set_active(0)
-                    objs["vote_btn2"].set_active(0)
-                    TO_BOARD = "{\"turn\": \"" + str(turn + 1) + "\"}"
 
             last_read = v_read
 

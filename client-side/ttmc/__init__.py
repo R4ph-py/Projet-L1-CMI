@@ -2,6 +2,7 @@
 import os
 from pygame.locals import *
 import pygame
+import json
 from screeninfo import get_monitors
 
 actual_path = os.path.dirname(__file__)
@@ -230,6 +231,7 @@ class Input(Text):
             if event.type == pygame.KEYDOWN:
                 if event.key == K_RETURN or event.key == K_KP_ENTER:
                     self.action()
+                    self.text = ""
 
                 elif event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
@@ -518,5 +520,9 @@ MATRICE_COORD_CASES = [(0.9, 0.94), (0.75, 0.94), (0.63, 0.92), (0.53, 0.86),
                        (0.47, 0.12)]
 
 POSSIBLE_TYPES = ["imp", "mat", "sco", "cvp", "cha", "pla", "csp", "win"]
+
 CASES_TYPES = [0, 1, 2, 3, 0, 4, 1, 2, 5, 6, 3, 5, 2, 0, 1, 4, 2, 5, 6, 1, 0,
                2, 5, 0, 5, 1, 3, 4, 2, 5, 0, 1, 2, 5, 2, 1, 6, 0, 4, 1, 7]
+
+with open(f"{actual_path}/db.json", "r", encoding="utf-8") as f:
+    JSONDB = json.load(f)
