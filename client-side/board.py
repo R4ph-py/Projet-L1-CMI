@@ -66,9 +66,9 @@ game_objs["j1_t"] = Text(map_x + map_w + (SCREEN_WIDTH - (map_x + map_w)) // 2, 
 game_objs["j3_t"] = Text(map_x + map_w + (SCREEN_WIDTH - (map_x + map_w)) // 2, SCREEN_HEIGHT // 3*2 + j2_t_height + 20, "", board_window).set_size(45).set_id("p3").set_colors(GREEN).has_background(1, WHITE).set_active(1)
 game_objs["j4_t"] = Text(map_x + map_w + (SCREEN_WIDTH - (map_x + map_w)) // 2, SCREEN_HEIGHT // 3*2 + 2 * j2_t_height + 40, "", board_window).set_size(45).set_id("p4").set_colors(ORANGE).has_background(1, WHITE).set_active(1)
 
-game_objs["ttmc_q"] = Text(map_x // 2, SCREEN_HEIGHT // 4, "Tu te mets combien en X ?", board_window).set_size(60).set_id("ttmc_q").set_max_pline(0).set_max_pline(25)
-game_objs["q_poser"] = Text(map_x // 2, SCREEN_HEIGHT // 5 * 2, "", board_window).set_size(40).set_id("q_poser").set_max_pline(26)
-game_objs["asw_inp"] = Input(map_x // 2, SCREEN_HEIGHT // 2, board_window).set_size(40).set_id("asw_inp").set_max_pline(30).set_action(coms)
+game_objs["ttmc_q"] = Text(map_x // 2, SCREEN_HEIGHT // 4, "Tu te mets combien en X ?", board_window).set_size(50).set_id("ttmc_q").set_max_pline(0).set_max_pline(25)
+game_objs["q_poser"] = Text(map_x // 2, SCREEN_HEIGHT // 5 * 2, "", board_window).set_size(25).set_id("q_poser").set_max_pline(65)
+game_objs["asw_inp"] = Input(map_x // 2, SCREEN_HEIGHT // 2, board_window).set_size(35).set_id("asw_inp").set_max_pline(30).set_action(coms)
 
 game_objs["btn_d0"] = Button(map_x // 6 * 1, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)
 game_objs["btn_d1"] = Button(map_x // 6 * 2, SCREEN_HEIGHT // 6 * 4, 100, 75, board_window)
@@ -81,7 +81,7 @@ game_objs["btn_d7"] = Button(map_x // 6 * 3, SCREEN_HEIGHT // 6 * 5, 100, 75, bo
 game_objs["btn_d8"] = Button(map_x // 6 * 4, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window)
 game_objs["btn_d9"] = Button(map_x // 6 * 5, SCREEN_HEIGHT // 6 * 5, 100, 75, board_window)
 
-game_objs["r_asw"] = Text(map_x // 2, SCREEN_HEIGHT // 20 * 12, "", board_window).set_size(40).set_id("r_asw").set_max_pline(40)
+game_objs["r_asw"] = Text(map_x // 2, SCREEN_HEIGHT // 20 * 12, "", board_window).set_size(30).set_id("r_asw").set_max_pline(50)
 game_objs["vote"] = Text(map_x // 2, SCREEN_HEIGHT // 10 * 8, "La réponse donnée est elle valide ? (demandez à tout le monde)", board_window).set_size(32).set_id("vote").set_max_pline(40)
 game_objs["vote_btn1"] = Button(map_x // 3, SCREEN_HEIGHT // 10 * 9, 100, 50, board_window).set_text("Oui").set_id("vote_btn1").set_action(coms, "{\"vote_btn1\": \"1\"}")
 game_objs["vote_btn2"] = Button(map_x // 3 * 2, SCREEN_HEIGHT // 10 * 9, 100, 50, board_window).set_text("Non").set_id("vote_btn2").set_action(coms, "{\"vote_btn2\": \"1\"}")
@@ -154,8 +154,8 @@ def start(is_online = 0):
     global TO_PROCESS
 
     if is_online == 1:
+        sys.exit()
         # _thread.start_new_thread(start_online, ())
-        pass
 
     else:
         _thread.start_new_thread(start_local, ())
@@ -217,8 +217,7 @@ def start(is_online = 0):
                         if case_type == "win":
                             rand = random.randint(1, 20)
                             quest = JSONDB["Final_questions"][str(rand)]
-                            resp = JSONDB["Final_reponses"]
-                            diff = rand
+                            r_asw = JSONDB["Final_reponses"][str(rand)]
                             objs["ttmc_q"].set_active(0)
                             objs["q_poser"].set_text(quest).set_active(1)
                             objs["asw_inp"].set_active(1)
@@ -264,13 +263,13 @@ def start(is_online = 0):
 
                         question = card[int(diff)]
                         objs["q_poser"].set_text(question).set_active(1)
-                        objs["asw_inp"].set_active(1)
+                        objs["asw_inp"].set_text("> ").set_active(1)
+                        r_asw = resp[int(diff)]
 
                     if "asw_inp" in v_read:
                         asw = v_read["asw_inp"]
                         objs["asw_inp"].set_text(asw).set_active_inp(0)
-                        asw = resp[int(diff)]
-                        objs["r_asw"].set_text(f"Réponse : {asw}").set_active(1)
+                        objs["r_asw"].set_text(f"Réponse : {r_asw}").set_active(1)
                         objs["vote"].set_active(1)
                         objs["vote_btn1"].set_active(1)
                         objs["vote_btn2"].set_active(1)
@@ -327,7 +326,8 @@ def start(is_online = 0):
 
 
 if len(sys.argv) > 1 and sys.argv[1] == "1":
-    start(1)
+    sys.exit()
+    # start(1)
 
 else:
     start()

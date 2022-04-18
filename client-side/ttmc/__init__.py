@@ -213,6 +213,7 @@ class Input(Text):
     def action(self):
         """Call the action"""
         self.fun("{\"done\": \"1\", \"" + self.id + "\": \"" + self.text + "\"}", *self.args)
+        self.text = ""
 
     def set_itype(self, type_s):
         """Set the type"""
@@ -231,7 +232,6 @@ class Input(Text):
             if event.type == pygame.KEYDOWN:
                 if event.key == K_RETURN or event.key == K_KP_ENTER:
                     self.action()
-                    self.text = ""
 
                 elif event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
@@ -382,10 +382,17 @@ class Image:
         self.image = image
         self.id = None
         self.window = window
+        self.is_active = 0
+
+    def set_active(self, active):
+        """Set active state"""
+        self.is_active = active
+        return self
 
     def show(self):
-        """Show button"""
-        self.window.blit(self.image, (self.x - self.image.get_width()/2, self.y  - self.image.get_height()/2))
+        """Show Image"""
+        if self.is_active:
+            self.window.blit(self.image, (self.x - self.image.get_width()/2, self.y  - self.image.get_height()/2))
 
     def set_id(self, id_s):
         """Set the id"""

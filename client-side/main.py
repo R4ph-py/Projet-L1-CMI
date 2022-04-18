@@ -85,7 +85,7 @@ def start():
 
     main_menu_objs = []
     main_menu_objs.append(Button(220, 310, 200, 100, window).set_text("Partie Locale").set_action(local_btn))
-    main_menu_objs.append(Button(500, 310, 200, 100, window).set_text("Partie Multi").set_action(multi_btn))
+    main_menu_objs.append(Button(500, 310, 200, 100, window).set_text("(x)Partie Multi(x)").set_action(multi_btn))
     main_menu_objs.append(Button(360, 455, 160, 70, window).set_text("Règles").set_action(rules_btn))
     main_menu_objs.append(Button(360, 555, 160, 70, window).set_text("Crédits").set_action(about_btn))
     main_menu_objs.append(Button(620, 655, 120, 70, window).set_text("Quitter").set_action(quit_menu))
@@ -128,6 +128,11 @@ def start():
     rules_menu3_objs.append(Image(WINDOW_WIDTH/2, 460, RULES4, window))
 
     objects = [main_menu_objs, about_objs, rules_menu1_objs, rules_menu2_objs, rules_menu3_objs]
+
+    for objs in objects:
+        for obj in objs:
+            obj.set_active(1)
+
     stay = 1
     while stay:
         pygame.display.update()
