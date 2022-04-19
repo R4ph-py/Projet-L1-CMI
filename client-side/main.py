@@ -9,7 +9,7 @@ from pygame.locals import *
 from ttmc import *
 
 actual_os = platform.system().lower()
-actual_path = os.path.dirname(__file__)
+actual_path = os.path.dirname(os.path.realpath(__file__))
 
 if "windows" in actual_os:
     COMMAND = ""
