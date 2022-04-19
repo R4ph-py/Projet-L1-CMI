@@ -166,6 +166,7 @@ def start(is_online = 0):
     turn_of = ""
     turn = 0
     animation = 0
+    objs = {}
 
     while stay:
         pygame.display.update()
